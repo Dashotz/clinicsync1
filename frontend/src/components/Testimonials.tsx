@@ -52,7 +52,7 @@ const Testimonials = () => {
                                     {testimonial.avatar}
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-foreground">{testimonial.name}</h4>
+                                    <h3 className="font-bold text-foreground">{testimonial.name}</h3>
                                     <p className="text-sm text-muted-foreground">{testimonial.role}</p>
                                 </div>
                             </div>

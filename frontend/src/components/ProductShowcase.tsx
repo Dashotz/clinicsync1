@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Play, Pause, Volume2 } from 'lucide-react';
 import AnimatedSection from './AnimatedSection';
+import { getOptimizedImageUrl, getResponsiveSrcSet, getSizesAttribute } from '@/lib/imageOptimizer';
 
 const ProductShowcase = () => {
     const [isPlaying, setIsPlaying] = useState(false);
@@ -72,15 +73,19 @@ const ProductShowcase = () => {
                         <div className="relative">
                         <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-border">
                             <img
-                                src="https://images.unsplash.com/photo-1642844819197-5f5f21b89ff8?w=800&q=80"
+                                src={getOptimizedImageUrl("https://images.unsplash.com/photo-1642844819197-5f5f21b89ff8", 800)}
+                                srcSet={getResponsiveSrcSet("https://images.unsplash.com/photo-1642844819197-5f5f21b89ff8", [400, 800, 1200])}
+                                sizes={getSizesAttribute({ desktop: '50vw' })}
                                 alt="Product showcase"
                                 className="w-full h-auto"
+                                loading="lazy"
                             />
 
                             {/* Video overlay */}
                             <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 dark:from-background/80 via-foreground/40 dark:via-background/40 to-transparent flex items-center justify-center">
                                 <button
                                     onClick={() => setIsPlaying(!isPlaying)}
+                                    aria-label={isPlaying ? 'Pause video' : 'Play video'}
                                     className="w-20 h-20 rounded-full bg-background/90 dark:bg-foreground/90 hover:bg-background dark:hover:bg-foreground flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-2xl"
                                 >
                                     {isPlaying ? (

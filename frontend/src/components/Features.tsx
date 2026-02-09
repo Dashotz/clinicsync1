@@ -59,9 +59,9 @@ const Features = () => {
                                 </p>
 
                                 <div className="pt-6 border-t border-border mt-auto">
-                                    <button className="text-sm font-bold text-primary flex items-center gap-2 group/btn hover:text-primary/90 transition-colors">
+                                    <button aria-label={`Learn more about ${feature.title}`} className="text-sm font-bold text-primary flex items-center gap-2 group/btn hover:text-primary/90 transition-colors">
                                         Learn More
-                                        <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
+                                        <span className="group-hover/btn:translate-x-1 transition-transform" aria-hidden="true">→</span>
                                     </button>
                                 </div>
                                 </div>

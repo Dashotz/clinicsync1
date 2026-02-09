@@ -13,30 +13,30 @@ const Footer = () => {
           {/* Company info */}
           <div className="space-y-6">
             <div>
-              <h3 className="text-2xl font-bold mb-2">ClinicSync</h3>
+              <h2 className="text-2xl font-bold mb-2">ClinicSync</h2>
               <p className="text-foreground/80">
                 Empowering dental practices with intelligent management solutions.
               </p>
             </div>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-foreground/10 flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
-                <Facebook className="w-5 h-5" />
+              <a href="#" aria-label="Visit our Facebook page" className="w-10 h-10 rounded-full bg-foreground/10 flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
+                <Facebook className="w-5 h-5" aria-hidden="true" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-foreground/10 flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
-                <Twitter className="w-5 h-5" />
+              <a href="#" aria-label="Visit our Twitter page" className="w-10 h-10 rounded-full bg-foreground/10 flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
+                <Twitter className="w-5 h-5" aria-hidden="true" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-foreground/10 flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
-                <Instagram className="w-5 h-5" />
+              <a href="#" aria-label="Visit our Instagram page" className="w-10 h-10 rounded-full bg-foreground/10 flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
+                <Instagram className="w-5 h-5" aria-hidden="true" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-foreground/10 flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
-                <Linkedin className="w-5 h-5" />
+              <a href="#" aria-label="Visit our LinkedIn page" className="w-10 h-10 rounded-full bg-foreground/10 flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
+                <Linkedin className="w-5 h-5" aria-hidden="true" />
               </a>
             </div>
           </div>
 
           {/* Quick links */}
           <div>
-            <h4 className="text-lg font-bold mb-6">Product</h4>
+            <h3 className="text-lg font-bold mb-6">Product</h3>
             <ul className="space-y-4">
               {['Features', 'Pricing', 'Case Studies', 'Reviews', 'Updates'].map((item) => (
                 <li key={item}>
@@ -50,7 +50,7 @@ const Footer = () => {
 
           {/* Support */}
           <div>
-            <h4 className="text-lg font-bold mb-6">Support</h4>
+            <h3 className="text-lg font-bold mb-6">Support</h3>
             <ul className="space-y-4">
               {['Help Center', 'Tutorials', 'API Documentation', 'Community', 'Contact Us'].map((item) => (
                 <li key={item}>
@@ -64,7 +64,7 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="text-lg font-bold mb-6">Contact</h4>
+            <h3 className="text-lg font-bold mb-6">Contact</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary shrink-0" />

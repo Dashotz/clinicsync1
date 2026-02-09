@@ -47,7 +47,7 @@ const Header = () => {
                 <div className="flex items-center justify-between h-20">
                     {/* Logo ... */}
                     <div className="flex items-center">
-                        <a href="/" className="flex items-center gap-2 group">
+                        <a href="/" aria-label="ClinicSync home" className="flex items-center gap-2 group">
                             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
                                 <svg
                                     className="w-6 h-6 text-primary-foreground"

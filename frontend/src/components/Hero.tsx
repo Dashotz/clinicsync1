@@ -2,12 +2,29 @@ import React from 'react';
 import { ArrowRight, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AnimatedSection from './AnimatedSection';
+import DotGrid from './DotGrid';
+import { getOptimizedImageUrl, getResponsiveSrcSet, getSizesAttribute } from '@/lib/imageOptimizer';
 
 const Hero = () => {
     return (
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-secondary via-background to-secondary pt-20">
+            {/* Dot Grid Background */}
+            <div className="absolute inset-0 z-0 opacity-30 dark:opacity-20">
+                <DotGrid
+                    dotSize={5}
+                    gap={15}
+                    baseColor="#94A3B8"
+                    activeColor="#3B82F6"
+                    proximity={120}
+                    shockRadius={250}
+                    shockStrength={5}
+                    resistance={750}
+                    returnDuration={1.5}
+                />
+            </div>
+
             {/* Animated background elements */}
-            <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 overflow-hidden z-0">
                 <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
                 <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-secondary rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-4000"></div>
@@ -78,9 +95,13 @@ const Hero = () => {
                         <div className="relative">
                         <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                             <img
-                                src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=800&q=80"
+                                src={getOptimizedImageUrl("https://images.unsplash.com/photo-1629909613654-28e377c37b09", 800)}
+                                srcSet={getResponsiveSrcSet("https://images.unsplash.com/photo-1629909613654-28e377c37b09", [400, 800, 1200])}
+                                sizes={getSizesAttribute({ desktop: '50vw' })}
                                 alt="Modern dental clinic"
                                 className="w-full h-auto object-cover"
+                                loading="eager"
+                                fetchPriority="high"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent"></div>
                         </div>

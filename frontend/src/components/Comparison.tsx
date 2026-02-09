@@ -121,25 +121,27 @@ const Comparison = () => {
                                             : selectedPlan === 'pro'
                                                 ? feature.pro
                                                 : feature.enterprise;
+                                    
+                                    const isAccountsRow = feature.name === "Accounts";
 
                                     return (
                                         <div
                                             key={index}
-                                            className="flex items-center justify-between p-5 bg-secondary/30 rounded-2xl border border-border/50"
+                                            className={`flex ${isAccountsRow ? 'flex-col gap-3' : 'items-center justify-between'} p-5 bg-secondary/30 rounded-2xl border border-border/50`}
                                         >
-                                            <span className="font-bold text-foreground/80">{feature.name}</span>
+                                            <span className={`font-bold text-foreground/80 ${isAccountsRow ? 'w-full' : ''}`}>{feature.name}</span>
                                             {typeof value === 'boolean' ? (
                                                 value ? (
-                                                    <div className="w-10 h-10 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center">
+                                                    <div className={`w-10 h-10 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center ${isAccountsRow ? 'self-start' : ''}`}>
                                                         <Check className="w-5 h-5 text-green-600 dark:text-green-400" />
                                                     </div>
                                                 ) : (
-                                                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground/30 font-bold">
+                                                    <div className={`w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground/30 font-bold ${isAccountsRow ? 'self-start' : ''}`}>
                                                         —
                                                     </div>
                                                 )
                                             ) : (
-                                                <span className="font-black text-primary">{value}</span>
+                                                <span className={`font-black text-primary ${isAccountsRow ? 'w-full break-words' : ''}`}>{value}</span>
                                             )}
                                         </div>
                                     );

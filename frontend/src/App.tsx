@@ -1,16 +1,25 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
-import ProductShowcase from '@/components/ProductShowcase';
-import Benefits from '@/components/Benefits';
-import Pricing from '@/components/Pricing';
-import Comparison from '@/components/Comparison';
-import Testimonials from '@/components/Testimonials';
-import DemoRequest from '@/components/DemoRequest';
-import Footer from '@/components/Footer';
 import { Toaster } from '@/components/ui/sonner';
-import './App.css';
+import '@/styles/App.css';
+
+// Lazy load below-the-fold components to reduce initial bundle size
+const ProductShowcase = lazy(() => import('@/components/ProductShowcase'));
+const Benefits = lazy(() => import('@/components/Benefits'));
+const Pricing = lazy(() => import('@/components/Pricing'));
+const Comparison = lazy(() => import('@/components/Comparison'));
+const Testimonials = lazy(() => import('@/components/Testimonials'));
+const DemoRequest = lazy(() => import('@/components/DemoRequest'));
+const Footer = lazy(() => import('@/components/Footer'));
+
+// Loading fallback component
+const SectionLoader = () => (
+  <div className="min-h-[400px] flex items-center justify-center">
+    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
 
 const App: React.FC = () => {
   React.useEffect(() => {
@@ -23,14 +32,28 @@ const App: React.FC = () => {
       <main>
         <Hero />
         <Features />
-        <ProductShowcase />
-        <Benefits />
-        <Pricing />
-        <Comparison />
-        <Testimonials />
-        <DemoRequest />
+        <Suspense fallback={<SectionLoader />}>
+          <ProductShowcase />
+        </Suspense>
+        <Suspense fallback={<SectionLoader />}>
+          <Benefits />
+        </Suspense>
+        <Suspense fallback={<SectionLoader />}>
+          <Pricing />
+        </Suspense>
+        <Suspense fallback={<SectionLoader />}>
+          <Comparison />
+        </Suspense>
+        <Suspense fallback={<SectionLoader />}>
+          <Testimonials />
+        </Suspense>
+        <Suspense fallback={<SectionLoader />}>
+          <DemoRequest />
+        </Suspense>
       </main>
-      <Footer />
+      <Suspense fallback={null}>
+        <Footer />
+      </Suspense>
       <Toaster />
     </div>
   );
