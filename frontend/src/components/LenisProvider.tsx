@@ -20,11 +20,12 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     document.documentElement.classList.add('lenis');
     const instance = new Lenis({
-      lerp: 0.1,
-      duration: 1,
+      lerp: 0.15,
+      duration: 0.8,
       smoothWheel: true,
       anchors: true,
       autoRaf: false,
+      overscroll: false,
     });
 
     requestAnimationFrame(() => setLenis(instance));

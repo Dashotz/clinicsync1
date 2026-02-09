@@ -15,7 +15,7 @@ const Hero = () => {
         : { nodeColor: 'rgba(37, 99, 235, 0.9)', lineColor: 'rgba(37, 99, 235, 0.6)' };
 
     return (
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-secondary via-background to-secondary pt-20">
+        <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-secondary via-background to-secondary pt-20">
             {/* Constellation Background */}
             <div className="absolute inset-0 z-0">
                 <ConstellationBackground

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useLenis } from '@/components/LenisProvider';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
@@ -18,7 +18,6 @@ const Header = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Lock body scroll and stop Lenis when mobile menu is open
     useEffect(() => {
         if (isMobileMenuOpen) {
             document.body.style.overflow = 'hidden';
@@ -79,15 +78,21 @@ const Header = () => {
 
                     {/* Desktop Navigation */}
                     <nav className="hidden lg:flex items-center gap-8">
-                        {['Features', 'Pricing', 'Solutions', 'Resources'].map((item) => (
+                        {[
+                            { label: 'Features', href: '#features' },
+                            { label: 'Product', href: '#product' },
+                            { label: 'Benefits', href: '#benefits' },
+                            { label: 'Pricing', href: '#pricing' },
+                            { label: 'Comparison', href: '#comparison' },
+                            { label: 'Testimonials', href: '#testimonials' },
+                            { label: 'Request Demo', href: '#demo' },
+                        ].map(({ label, href }) => (
                             <a
-                                key={item}
-                                href={`#${item.toLowerCase()}`}
-                                className={`font-semibold transition-colors hover:text-primary flex items-center gap-1 ${isScrolled ? 'text-muted-foreground' : 'text-foreground'
-                                    }`}
+                                key={href}
+                                href={href}
+                                className={`font-semibold transition-colors hover:text-primary ${isScrolled ? 'text-muted-foreground' : 'text-foreground'}`}
                             >
-                                {item}
-                                <ChevronDown className="w-4 h-4" />
+                                {label}
                             </a>
                         ))}
                     </nav>
@@ -129,14 +134,22 @@ const Header = () => {
                 {isMobileMenuOpen && (
                     <div className="lg:hidden py-6 border-t border-border bg-background animate-in slide-in-from-top-2 duration-200 fade-in max-h-[calc(100vh-5rem)] overflow-y-auto rounded-b-2xl" data-lenis-prevent>
                         <nav className="flex flex-col">
-                            {['Features', 'Pricing', 'Solutions', 'Resources'].map((item) => (
+                            {[
+                                { label: 'Features', href: '#features' },
+                                { label: 'Product', href: '#product' },
+                                { label: 'Benefits', href: '#benefits' },
+                                { label: 'Pricing', href: '#pricing' },
+                                { label: 'Comparison', href: '#comparison' },
+                                { label: 'Testimonials', href: '#testimonials' },
+                                { label: 'Request Demo', href: '#demo' },
+                            ].map(({ label, href }) => (
                                 <a
-                                    key={item}
-                                    href={`#${item.toLowerCase()}`}
+                                    key={href}
+                                    href={href}
                                     className="text-foreground hover:text-primary font-semibold py-3 px-4 transition-colors rounded-lg hover:bg-accent/50 active:bg-accent mx-2"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
-                                    {item}
+                                    {label}
                                 </a>
                             ))}
                             <div className="border-t border-border pt-6 mt-2 space-y-4">

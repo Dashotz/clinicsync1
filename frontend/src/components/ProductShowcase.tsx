@@ -7,7 +7,7 @@ const ProductShowcase = () => {
     const [isPlaying, setIsPlaying] = useState(false);
 
     return (
-        <section className="py-24 bg-background text-foreground relative overflow-hidden">
+        <section id="product" className="py-24 bg-background text-foreground relative overflow-hidden">
             {/* Animated background */}
             <div className="absolute inset-0 opacity-20">
                 <div className="absolute top-20 left-20 w-64 h-64 bg-primary rounded-full filter blur-3xl animate-pulse"></div>

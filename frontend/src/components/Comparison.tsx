@@ -8,7 +8,7 @@ const Comparison = () => {
     const [selectedPlan, setSelectedPlan] = useState('pro');
 
     return (
-        <section className="py-24 bg-background">
+        <section id="comparison" className="py-24 bg-background">
             <div className="container mx-auto px-6 lg:px-12">
                 {/* Section header */}
                 <AnimatedSection animation="slideUp">

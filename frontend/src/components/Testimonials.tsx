@@ -5,7 +5,7 @@ import AnimatedSection from './AnimatedSection';
 
 const Testimonials = () => {
     return (
-        <section className="py-24 bg-card relative overflow-hidden">
+        <section id="testimonials" className="py-24 bg-card relative overflow-hidden">
             {/* Decorative background elements */}
             <div className="absolute top-1/2 left-0 w-96 h-96 bg-primary/5 rounded-full filter blur-3xl opacity-40 -translate-y-1/2 -translate-x-1/2"></div>
             <div className="absolute top-1/2 right-0 w-96 h-96 bg-secondary rounded-full filter blur-3xl opacity-40 -translate-y-1/2 translate-x-1/2"></div>

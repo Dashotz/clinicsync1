@@ -1,5 +1,5 @@
-/* Smooth scroll behavior */
-html {
+/* Smooth scroll: Lenis handles it when active; fallback for anchor links when Lenis not ready */
+html:not(.lenis) {
     scroll-behavior: smooth;
 }
 
