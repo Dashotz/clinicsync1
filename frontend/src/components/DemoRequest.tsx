@@ -54,7 +54,7 @@ const DemoRequest = () => {
               <span className="block text-primary">Dental Practice?</span>
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
-              Join thousands of practitioners who have already optimized their operations with ClinicSync's AI-powered platform.
+              Join thousands of practitioners who have already optimized their operations with ClinicSync's platform.
             </p>
             <ul className="space-y-4">
               {[

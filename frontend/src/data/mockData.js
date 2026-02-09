@@ -23,7 +23,7 @@ export const features = [
   {
     id: 4,
     title: "Schedule & Record",
-    description: "Smart scheduling plus seamless record-keeping. Book appointments, log visits, and maintain accurate patient history in one system.",
+    description: "Flexible scheduling plus seamless record-keeping. Book appointments, log visits, and maintain accurate patient history in one system.",
     icon: "Calendar",
     image: "https://images.unsplash.com/photo-1642844819197-5f5f21b89ff8"
   },
@@ -115,7 +115,7 @@ export const testimonials = [
     id: 2,
     name: "Dr. James Chen",
     role: "Chief Dentist, Metro Dental Group",
-    content: "The AI scheduling is incredible. It optimizes our daily schedule automatically and has increased our patient throughput by 30% without adding staff.",
+    content: "The scheduling is incredible. It optimizes our daily schedule automatically and has increased our patient throughput by 30% without adding staff.",
     avatar: "JC",
     rating: 5,
     location: "New York, NY"
@@ -136,7 +136,7 @@ export const benefits = [
     id: 1,
     metric: "65%",
     label: "Reduction in No-Shows",
-    description: "Automated reminders and smart scheduling"
+    description: "Reminder system and flexible scheduling"
   },
   {
     id: 2,

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, ChevronDown } from 'lucide-react';
+import { useLenis } from '@/components/LenisProvider';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 
 const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const lenis = useLenis();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -16,17 +18,20 @@ const Header = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Lock body scroll when mobile menu is open
+    // Lock body scroll and stop Lenis when mobile menu is open
     useEffect(() => {
         if (isMobileMenuOpen) {
             document.body.style.overflow = 'hidden';
+            lenis?.stop();
         } else {
             document.body.style.overflow = '';
+            lenis?.start();
         }
         return () => {
             document.body.style.overflow = '';
+            lenis?.start();
         };
-    }, [isMobileMenuOpen]);
+    }, [isMobileMenuOpen, lenis]);
 
     return (
         <header
@@ -122,7 +127,7 @@ const Header = () => {
 
                 {/* Mobile Navigation */}
                 {isMobileMenuOpen && (
-                    <div className="lg:hidden py-6 border-t border-border bg-background animate-in slide-in-from-top-2 duration-200 fade-in max-h-[calc(100vh-5rem)] overflow-y-auto rounded-b-2xl">
+                    <div className="lg:hidden py-6 border-t border-border bg-background animate-in slide-in-from-top-2 duration-200 fade-in max-h-[calc(100vh-5rem)] overflow-y-auto rounded-b-2xl" data-lenis-prevent>
                         <nav className="flex flex-col">
                             {['Features', 'Pricing', 'Solutions', 'Resources'].map((item) => (
                                 <a

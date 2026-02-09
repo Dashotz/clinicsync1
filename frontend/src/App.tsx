@@ -23,7 +23,7 @@ const SectionLoader = () => (
 
 const App: React.FC = () => {
   React.useEffect(() => {
-    document.title = 'ClinicSync | AI-Powered Dental Practice Management';
+    document.title = 'ClinicSync | Dental Practice Management';
   }, []);
 
   return (

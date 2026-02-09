@@ -15,7 +15,7 @@ const Footer = () => {
             <div>
               <h2 className="text-2xl font-bold mb-2">ClinicSync</h2>
               <p className="text-foreground/80">
-                Empowering dental practices with intelligent management solutions.
+                Empowering dental practices with comprehensive management solutions.
               </p>
             </div>
             <div className="flex gap-4">

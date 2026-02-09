@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import '@/styles/index.css';
 import App from './App';
-
+import { LenisProvider } from '@/components/LenisProvider';
 import { ThemeProvider } from '@/components/theme-provider';
 
 // Render immediately for optimal Speed Index
@@ -17,7 +17,9 @@ if (rootElement) {
         enableSystem
         disableTransitionOnChange
       >
-        <App />
+        <LenisProvider>
+          <App />
+        </LenisProvider>
       </ThemeProvider>
     </React.StrictMode>
   );

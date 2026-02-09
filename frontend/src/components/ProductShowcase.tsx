@@ -30,14 +30,14 @@ const ProductShowcase = () => {
                         </h2>
 
                         <p className="text-xl text-muted-foreground leading-relaxed">
-                            Watch how our AI-powered platform transforms daily operations in real dental practices. From intelligent scheduling to automated patient communications.
+                            Watch how our platform transforms daily operations in real dental practices. From flexible scheduling to automated patient communications.
                         </p>
 
                         <div className="space-y-6">
                             {[
                                 {
                                     title: 'Smart Scheduling',
-                                    description: 'AI optimizes appointments based on treatment time, provider availability, and patient preferences',
+                                    description: 'Optimize appointments based on treatment time, provider availability, and patient preferences',
                                 },
                                 {
                                     title: 'Real-Time Updates',

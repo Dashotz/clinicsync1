@@ -1,25 +1,32 @@
 import React from 'react';
 import { ArrowRight, Play } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import AnimatedSection from './AnimatedSection';
-import DotGrid from './DotGrid';
+import { ConstellationBackground } from './ConstellationBackground';
 import { getOptimizedImageUrl, getResponsiveSrcSet, getSizesAttribute } from '@/lib/imageOptimizer';
 
 const Hero = () => {
+    const { resolvedTheme } = useTheme();
+
+    const isDark = resolvedTheme === 'dark';
+    const constellationColors = isDark
+        ? { nodeColor: 'rgba(136, 196, 255, 1)', lineColor: 'rgba(136, 196, 255, 0.4)' }
+        : { nodeColor: 'rgba(37, 99, 235, 0.9)', lineColor: 'rgba(37, 99, 235, 0.6)' };
+
     return (
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-secondary via-background to-secondary pt-20">
-            {/* Dot Grid Background */}
-            <div className="absolute inset-0 z-0 opacity-30 dark:opacity-20">
-                <DotGrid
-                    dotSize={5}
-                    gap={15}
-                    baseColor="#94A3B8"
-                    activeColor="#3B82F6"
-                    proximity={120}
-                    shockRadius={250}
-                    shockStrength={5}
-                    resistance={750}
-                    returnDuration={1.5}
+            {/* Constellation Background */}
+            <div className="absolute inset-0 z-0">
+                <ConstellationBackground
+                    className="opacity-80 dark:opacity-65"
+                    count={80}
+                    connectionDistance={150}
+                    nodeColor={constellationColors.nodeColor}
+                    lineColor={constellationColors.lineColor}
+                    nodeSize={2}
+                    mouseRadius={100}
+                    glow
                 />
             </div>
 
@@ -44,7 +51,7 @@ const Hero = () => {
                         </h1>
 
                         <p className="text-xl text-muted-foreground leading-relaxed max-w-xl">
-                            Complete clinic management system powered by AI. Streamline scheduling, automate workflows, and grow your practice with intelligent insights.
+                            Complete clinic management system. Streamline scheduling, automate workflows, and grow your practice with powerful insights.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4">
@@ -116,7 +123,7 @@ const Hero = () => {
                                 </div>
                                 <div>
                                     <p className="text-sm font-semibold text-foreground">Appointment Confirmed</p>
-                                    <p className="text-xs text-muted-foreground">Auto-scheduled in 0.3s</p>
+                                    <p className="text-xs text-muted-foreground">Scheduled by doctor</p>
                                 </div>
                             </div>
                         </div>
