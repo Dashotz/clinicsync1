@@ -1,16 +1,14 @@
 import React from 'react';
-import { Calendar, Users, BarChart3, CreditCard, MessageSquare, Shield } from 'lucide-react';
+import { Calendar, Users, BarChart3, MessageSquare, Shield } from 'lucide-react';
 import { features } from '../data/mockData';
 import AnimatedSection from './AnimatedSection';
-import { motion } from 'framer-motion';
 
-const iconMap: { [key: string]: any } = {
-    Calendar: Calendar,
-    Users: Users,
-    BarChart3: BarChart3,
-    CreditCard: CreditCard,
-    MessageSquare: MessageSquare,
-    Shield: Shield
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+    Calendar,
+    Users,
+    BarChart3,
+    MessageSquare,
+    Shield,
 };
 
 const Features = () => {
@@ -42,17 +40,17 @@ const Features = () => {
                                 delay={index * 0.1}
                             >
                                 <div
-                                    className="group p-8 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-2xl transition-all duration-500 overflow-hidden relative"
+                                    className="group p-8 rounded-2xl bg-card border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300 overflow-hidden relative"
                                 >
-                                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-8 transition-opacity">
                                     <Icon className="w-24 h-24" />
                                 </div>
 
-                                <div className="w-14 h-14 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                                    <Icon className="w-7 h-7 text-primary dark:text-blue-400" />
+                                <div className="w-14 h-14 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-105 group-hover:bg-primary/20 dark:group-hover:bg-primary transition-all duration-300">
+                                    <Icon className="w-7 h-7 text-primary dark:text-blue-400 group-hover:text-primary dark:group-hover:text-primary-foreground transition-colors" />
                                 </div>
 
-                                <h3 className="text-2xl font-bold text-foreground mb-4 group-hover:text-primary transition-colors">
+                                <h3 className="text-2xl font-bold text-foreground mb-4 group-hover:text-primary/90 transition-colors">
                                     {feature.title}
                                 </h3>
 
@@ -61,7 +59,7 @@ const Features = () => {
                                 </p>
 
                                 <div className="pt-6 border-t border-border mt-auto">
-                                    <button className="text-sm font-bold text-primary flex items-center gap-2 group/btn">
+                                    <button className="text-sm font-bold text-primary flex items-center gap-2 group/btn hover:text-primary/90 transition-colors">
                                         Learn More
                                         <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
                                     </button>
