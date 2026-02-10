@@ -3,6 +3,7 @@ import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
 import { Toaster } from '@/components/ui/sonner';
+import { LoginPage } from '@/pages/login';
 import '@/styles/App.css';
 
 // Lazy load below-the-fold components to reduce initial bundle size
@@ -25,6 +26,25 @@ const App: React.FC = () => {
   React.useEffect(() => {
     document.title = 'ClinicSync | Dental Practice Management';
   }, []);
+
+  const [route, setRoute] = React.useState<string>(() => window.location.hash || '');
+
+  React.useEffect(() => {
+    const onHashChange = () => setRoute(window.location.hash || '');
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  if (route === '#login') {
+    return (
+      <LoginPage
+        onLoginSuccess={() => {
+          window.location.hash = '';
+          window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+        }}
+      />
+    );
+  }
 
   return (
     <div className="App">

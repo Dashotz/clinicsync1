@@ -9,6 +9,11 @@ const Header = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const lenis = useLenis();
 
+    const goToLogin = () => {
+        window.location.hash = '#login';
+        setIsMobileMenuOpen(false);
+    };
+
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
@@ -106,6 +111,7 @@ const Header = () => {
                                 ? 'text-muted-foreground hover:text-primary'
                                 : 'text-foreground hover:text-primary'
                                 }`}
+                            onClick={goToLogin}
                         >
                             Sign In
                         </Button>
@@ -163,6 +169,7 @@ const Header = () => {
                                     <Button
                                         variant="outline"
                                         className="w-full border-2 border-border hover:border-primary font-semibold h-11 rounded-lg"
+                                        onClick={goToLogin}
                                     >
                                         Sign In
                                     </Button>
