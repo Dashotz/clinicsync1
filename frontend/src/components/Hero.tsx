@@ -37,13 +37,13 @@ const Hero = () => {
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-secondary rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-4000"></div>
             </div>
 
-            <div className="container mx-auto px-6 lg:px-12 relative z-10 pt-32 pb-16 lg:pt-0 lg:pb-0">
-                <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="container mx-auto px-4 sm:px-6 xl:px-12 relative z-10 pt-32 pb-16 xl:pt-0 xl:pb-0">
+                <div className="grid xl:grid-cols-2 gap-8 xl:gap-12 items-center">
                     {/* Left content */}
                     <AnimatedSection animation="slideRight">
                         <div className="space-y-8">
 
-                        <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-foreground leading-tight">
+                        <h1 className="text-4xl md:text-5xl xl:text-7xl font-bold text-foreground leading-tight">
                             Transform Your
                             <span className="block mt-2 bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
                                 Dental Practice

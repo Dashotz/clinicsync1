@@ -8,13 +8,13 @@ import AnimatedSection from './AnimatedSection';
 const Pricing = () => {
     return (
         <section id="pricing" className="py-24 bg-secondary/50 relative overflow-hidden">
-            <div className="container mx-auto px-6 lg:px-12 relative z-10">
+            <div className="container mx-auto px-4 sm:px-6 xl:px-12 relative z-10">
                 <AnimatedSection animation="slideUp">
                     <div className="text-center max-w-3xl mx-auto mb-20">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-background border border-border rounded-full text-sm font-medium text-primary mb-6">
                             Simple Pricing
                         </div>
-                        <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6">
+                        <h2 className="text-4xl xl:text-5xl font-bold text-foreground mb-6">
                             Transparent Plans for Every
                             <span className="block text-primary">Practice Stage</span>
                         </h2>
@@ -24,7 +24,7 @@ const Pricing = () => {
                     </div>
                 </AnimatedSection>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 max-w-7xl mx-auto">
                     {pricingPlans.map((plan, index) => (
                         <AnimatedSection
                             key={plan.id}

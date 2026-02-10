@@ -8,51 +8,59 @@ This is a frontend-only marketing and landing page for ClinicSync. The site pres
 
 ### Key Sections
 
-- **Hero** - Headline, CTAs, and trust indicators
-- **Core Capabilities** - Clinic digitalization, revenue operations, patient management, scheduling, nurture and retention, compliance
-- **Product Showcase** - Video placeholder and feature highlights
-- **Benefits** - Key metrics (no-show reduction, time saved, revenue increase, uptime)
-- **Pricing** - Three tiers (Starter, Pro, Enterprise) with PHP pricing
-- **Plan Comparison** - Feature comparison table across plans
-- **Testimonials** - Customer quotes and ratings
-- **Demo Request** - Contact form for demo inquiries
+- **Hero** – Headline, CTAs, and trust indicators
+- **Core Capabilities** – Clinic digitalization, revenue operations, patient management, scheduling, nurture and retention, compliance
+- **Product Showcase** – Video placeholder and feature highlights
+- **Benefits** – Key metrics (no-show reduction, time saved, revenue increase, uptime)
+- **Pricing** – Three tiers (Starter, Pro, Enterprise) with PHP pricing
+- **Plan Comparison** – Feature comparison table across plans
+- **Testimonials** – Customer quotes and ratings
+- **Demo Request** – Contact form for demo inquiries
+- **Login** – Demo login page at `/login` with carousel and light/dark theme support
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Framework | React 19 |
+| Framework | Next.js 15 (App Router) |
+| UI | React 19 |
 | Language | TypeScript |
-| UI Components | Shadcn UI (Radix primitives) |
+| UI Components | Radix UI primitives (Shadcn-style) |
 | Styling | Tailwind CSS |
 | Animations | Framer Motion |
 | Icons | Lucide React |
-| Forms | React Hook Form, Zod |
-| Build | Create React App, Craco |
 | Theme | next-themes (light/dark) |
+| Smooth scroll | Lenis |
 
 ### Notable Dependencies
 
-- **Shadcn UI** - Accessible, customizable components built on Radix UI
-- **Tailwind CSS** - Utility-first styling with custom theme variables
-- **Framer Motion** - Scroll-triggered and hover animations
-- **Sonner** - Toast notifications for form feedback
+- **Next.js 15** – React framework with App Router, server components, and optimized builds
+- **Tailwind CSS** – Utility-first styling with CSS variables for theming
+- **Framer Motion** – Scroll-triggered and hover animations
+- **Sonner** – Toast notifications for form feedback
 
 ## Project Structure
 
 ```
 clinicsync1/
   frontend/
-    public/          # Static assets, index.html
     src/
-      components/    # Page sections and reusable UI
-        ui/         # Shadcn UI primitives
-      data/         # Mock data (features, pricing, testimonials)
-      hooks/        # Custom hooks
-      lib/          # Utilities
-    craco.config.js # Build customization
-  memory/            # PRD and product docs
-  SECURITY.md       # Security audit notes
+      app/                 # Next.js App Router
+        globals.css
+        layout.tsx
+        page.tsx           # Landing page
+        login/
+          page.tsx         # Login page
+      components/          # Page sections and reusable UI
+        ui/                # Button, Card, Sonner, etc.
+      data/                # Mock data (features, pricing, testimonials)
+      lib/                 # Utilities
+      views/
+        login/             # Login page views and styles
+    next.config.js
+    tailwind.config.js
+  memory/                  # PRD and product docs
+  SECURITY.md              # Security audit notes
 ```
 
 ## Getting Started
@@ -60,55 +68,53 @@ clinicsync1/
 ### Prerequisites
 
 - Node.js 18+
-- Yarn (recommended) or npm
+- npm or Yarn
 
 ### Installation
-
-```bash
-cd frontend
-yarn install
-```
-
-Or with npm:
 
 ```bash
 cd frontend
 npm install
 ```
 
+Or with Yarn:
+
+```bash
+cd frontend
+yarn install
+```
+
 ### Development
 
 ```bash
 cd frontend
-yarn start
+npm run dev
 ```
 
 Runs the app at [http://localhost:3000](http://localhost:3000).
+
+- Landing: [http://localhost:3000](http://localhost:3000)
+- Login: [http://localhost:3000/login](http://localhost:3000/login)
 
 ### Build
 
 ```bash
 cd frontend
-yarn build
+npm run build
 ```
 
-Produces an optimized production build in `frontend/build`.
+Produces an optimized production build (output in `.next`). Use `npm run start` to run the production server locally.
 
-### Tests
+### Lint
 
 ```bash
 cd frontend
-yarn test
+npm run lint
 ```
 
 ## Configuration
 
-Create a `frontend/.env` file for local overrides:
-
-```
-WDS_SOCKET_PORT=443
-ENABLE_HEALTH_CHECK=false
-```
+Create a `frontend/.env.local` file for local overrides (e.g. API URLs). Next.js supports standard env variable naming.
 
 ## License
 

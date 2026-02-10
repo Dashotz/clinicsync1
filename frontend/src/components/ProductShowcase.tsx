@@ -14,8 +14,8 @@ const ProductShowcase = () => {
                 <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-600 rounded-full filter blur-3xl animate-pulse animation-delay-2000"></div>
             </div>
 
-            <div className="container mx-auto px-6 lg:px-12 relative z-10">
-                <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="container mx-auto px-4 sm:px-6 xl:px-12 relative z-10">
+                <div className="grid xl:grid-cols-2 gap-8 xl:gap-16 items-center">
                     {/* Left content */}
                     <AnimatedSection animation="slideRight">
                         <div className="space-y-8">
@@ -24,7 +24,7 @@ const ProductShowcase = () => {
                             Live Demo
                         </div>
 
-                        <h2 className="text-4xl lg:text-5xl font-bold leading-tight">
+                        <h2 className="text-4xl xl:text-5xl font-bold leading-tight">
                             See the System
                             <span className="block text-primary">in Action</span>
                         </h2>

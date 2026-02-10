@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { LoginForm } from './LoginForm';
 import './LoginPage.css';
@@ -17,20 +18,15 @@ export const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
     return () => clearInterval(timer);
   }, []);
 
-  const goToLanding = () => {
-    window.location.hash = '';
-  };
-
   return (
     <div className="login-page">
-      <button
-        type="button"
-        onClick={goToLanding}
+      <Link
+        href="/"
         className="login-back"
         aria-label="Back to landing page"
       >
         <ArrowLeft className="login-back-icon" />
-      </button>
+      </Link>
 
       <div className="login-visual-side">
         <div className="visual-blob blob-1" />
@@ -48,33 +44,12 @@ export const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
                 <div className="mock-dash-body">
                   <div className="mock-dash-sidebar" />
                   <div className="mock-dash-main">
-                    <div
-                      className="mock-line"
-                      style={{
-                        width: '40%',
-                        height: '12px',
-                        backgroundColor: 'rgba(255,255,255,0.1)',
-                      }}
-                    />
+                    <div className="mock-line mock-line-title" />
                     <div className="mock-line" style={{ width: '100%' }} />
                     <div className="mock-line" style={{ width: '90%' }} />
                     <div style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
-                      <div
-                        style={{
-                          width: '24px',
-                          height: '24px',
-                          borderRadius: '4px',
-                          backgroundColor: 'rgba(99,102,241,0.2)',
-                        }}
-                      />
-                      <div
-                        style={{
-                          width: '24px',
-                          height: '24px',
-                          borderRadius: '4px',
-                          backgroundColor: 'rgba(99,102,241,0.2)',
-                        }}
-                      />
+                      <div className="mock-block" />
+                      <div className="mock-block" />
                     </div>
                   </div>
                 </div>
@@ -137,34 +112,10 @@ export const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
                         width: '100%',
                       }}
                     >
-                      <div
-                        style={{
-                          height: '50px',
-                          background: 'rgba(255,255,255,0.05)',
-                          borderRadius: '6px',
-                        }}
-                      />
-                      <div
-                        style={{
-                          height: '50px',
-                          background: 'rgba(255,255,255,0.05)',
-                          borderRadius: '6px',
-                        }}
-                      />
-                      <div
-                        style={{
-                          height: '50px',
-                          background: 'rgba(255,255,255,0.05)',
-                          borderRadius: '6px',
-                        }}
-                      />
-                      <div
-                        style={{
-                          height: '50px',
-                          background: 'rgba(255,255,255,0.05)',
-                          borderRadius: '6px',
-                        }}
-                      />
+                      <div className="mock-tile" />
+                      <div className="mock-tile" />
+                      <div className="mock-tile" />
+                      <div className="mock-tile" />
                     </div>
                     <div className="mock-line" style={{ width: '80%', marginTop: 'auto' }} />
                   </div>
@@ -209,4 +160,3 @@ export const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
     </div>
   );
 };
-

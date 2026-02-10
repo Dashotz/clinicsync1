@@ -3,7 +3,7 @@ import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
 import { Toaster } from '@/components/ui/sonner';
-import { LoginPage } from '@/pages/login';
+import { LoginPage } from '@/views/login';
 import '@/styles/App.css';
 
 // Lazy load below-the-fold components to reduce initial bundle size

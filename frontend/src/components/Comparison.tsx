@@ -9,14 +9,14 @@ const Comparison = () => {
 
     return (
         <section id="comparison" className="py-24 bg-background">
-            <div className="container mx-auto px-6 lg:px-12">
+            <div className="container mx-auto px-4 sm:px-6 xl:px-12">
                 {/* Section header */}
                 <AnimatedSection animation="slideUp">
                     <div className="text-center max-w-3xl mx-auto mb-16">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-sm font-bold text-primary mb-6">
                             Plan Comparison
                         </div>
-                        <h2 className="text-4xl lg:text-5xl font-extrabold text-foreground mb-6 tracking-tight">
+                        <h2 className="text-4xl xl:text-5xl font-extrabold text-foreground mb-6 tracking-tight">
                             Find Your Perfect
                             <span className="block text-primary">Feature Match</span>
                         </h2>
@@ -31,7 +31,7 @@ const Comparison = () => {
                     <Card className="border border-border shadow-2xl shadow-primary/5 overflow-hidden bg-card">
                     <CardContent className="p-0">
                         {/* Desktop view */}
-                        <div className="hidden lg:block overflow-x-auto">
+                        <div className="hidden xl:block overflow-x-auto">
                             <table className="w-full border-collapse">
                                 <thead>
                                     <tr className="border-b border-border bg-secondary/30">
@@ -91,7 +91,7 @@ const Comparison = () => {
                         </div>
 
                         {/* Mobile view - Accordion */}
-                        <div className="lg:hidden p-6 bg-card">
+                        <div className="xl:hidden p-6 bg-card">
                             {/* Plan selector */}
                             <div className="flex gap-2 mb-8 bg-muted p-1 rounded-xl">
                                 {[

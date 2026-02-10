@@ -27,10 +27,11 @@
     padding: 0 14px;
     border-radius: 10px;
     border: 1px solid hsl(var(--border));
-    background: hsl(var(--input));
+    background: hsl(var(--muted));
     color: hsl(var(--foreground));
     outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .text-input::placeholder {
@@ -40,7 +41,15 @@
 .text-input:focus {
     border-color: hsl(var(--ring));
     box-shadow: 0 0 0 4px hsl(var(--ring) / 0.2);
-    background: hsl(var(--input));
+    background: hsl(var(--background));
+}
+
+.dark .text-input {
+    box-shadow: none;
+}
+
+.dark .text-input:focus {
+    box-shadow: 0 0 0 4px hsl(var(--ring) / 0.2);
 }
 
 .input-wrap {
@@ -130,11 +139,23 @@
 .btn-primary {
     background: hsl(var(--primary));
     color: hsl(var(--primary-foreground));
-    box-shadow: 0 4px 14px hsl(var(--primary) / 0.35);
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08),
+        0 4px 14px hsl(var(--primary) / 0.35);
 }
 
 .btn-primary:hover {
     filter: brightness(1.05);
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.1),
+        0 6px 20px hsl(var(--primary) / 0.4);
+}
+
+.dark .btn-primary {
+    box-shadow: 0 4px 14px hsl(var(--primary) / 0.35);
+}
+
+.dark .btn-primary:hover {
     box-shadow: 0 6px 20px hsl(var(--primary) / 0.4);
 }
 
@@ -167,14 +188,23 @@
 }
 
 .google-button {
-    background: transparent !important;
+    background: hsl(var(--secondary)) !important;
     border: 1px solid hsl(var(--border)) !important;
-    box-shadow: none !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
     color: hsl(var(--foreground)) !important;
 }
 
 .google-button:hover {
     background: hsl(var(--accent)) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+.dark .google-button {
+    box-shadow: none !important;
+}
+
+.dark .google-button:hover {
+    box-shadow: none !important;
 }
 
 .social-logo-g {
@@ -246,8 +276,12 @@
     color: hsl(var(--muted-foreground));
     text-align: center;
     padding: 12px;
-    background-color: hsl(var(--muted) / 0.5);
+    background-color: hsl(var(--muted));
     border-radius: 6px;
-    border: 1px dashed hsl(var(--border));
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
+.dark .login-hint {
+    box-shadow: none;
+}

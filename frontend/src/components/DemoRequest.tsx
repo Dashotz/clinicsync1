@@ -17,7 +17,7 @@ const DemoRequest = () => {
   if (isSubmitted) {
     return (
       <section id="demo" className="py-24 bg-background">
-        <div className="container mx-auto px-6 lg:px-12 text-center">
+        <div className="container mx-auto px-4 sm:px-6 xl:px-12 text-center">
           <AnimatedSection animation="scale">
             <Card className="max-w-2xl mx-auto border-2 border-primary/20 bg-card p-12">
             <div className="flex justify-center mb-6">
@@ -45,11 +45,11 @@ const DemoRequest = () => {
 
   return (
     <section id="demo" className="py-24 bg-background relative overflow-hidden">
-      <div className="container mx-auto px-6 lg:px-12 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <div className="container mx-auto px-4 sm:px-6 xl:px-12 relative z-10">
+        <div className="grid xl:grid-cols-2 gap-8 xl:gap-16 items-center">
           <AnimatedSection animation="slideRight">
             <div className="max-w-xl">
-            <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6">
+            <h2 className="text-4xl xl:text-5xl font-bold text-foreground mb-6">
               Ready to Transform Your
               <span className="block text-primary">Dental Practice?</span>
             </h2>

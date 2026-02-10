@@ -7,9 +7,9 @@ const Footer = () => {
 
   return (
     <footer className="bg-muted/50 border-t border-border pt-20 pb-10">
-      <div className="container mx-auto px-6 lg:px-12">
+      <div className="container mx-auto px-4 sm:px-6 xl:px-12">
         <AnimatedSection animation="fade">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-12 mb-16">
           {/* Company info */}
           <div className="space-y-6">
             <div>

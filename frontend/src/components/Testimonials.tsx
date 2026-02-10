@@ -10,13 +10,13 @@ const Testimonials = () => {
             <div className="absolute top-1/2 left-0 w-96 h-96 bg-primary/5 rounded-full filter blur-3xl opacity-40 -translate-y-1/2 -translate-x-1/2"></div>
             <div className="absolute top-1/2 right-0 w-96 h-96 bg-secondary rounded-full filter blur-3xl opacity-40 -translate-y-1/2 translate-x-1/2"></div>
 
-            <div className="container mx-auto px-6 lg:px-12 relative z-10">
+            <div className="container mx-auto px-4 sm:px-6 xl:px-12 relative z-10">
                 <AnimatedSection animation="slideUp">
                     <div className="text-center max-w-3xl mx-auto mb-16">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-secondary border border-border rounded-full text-sm font-medium text-primary mb-6">
                             Testimonials
                         </div>
-                        <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6">
+                        <h2 className="text-4xl xl:text-5xl font-bold text-foreground mb-6">
                             Trusted by Leading
                             <span className="block text-primary">Practices</span>
                         </h2>
@@ -26,7 +26,7 @@ const Testimonials = () => {
                     </div>
                 </AnimatedSection>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                     {testimonials.map((testimonial, index) => (
                         <AnimatedSection
                             key={testimonial.id}
