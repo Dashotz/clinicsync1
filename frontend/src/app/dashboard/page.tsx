@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Clock,
@@ -122,14 +122,21 @@ const appointments = [
 
 function formatSubtitle() {
   const d = new Date();
+  const timeZone =
+    typeof Intl !== 'undefined'
+      ? Intl.DateTimeFormat().resolvedOptions().timeZone
+      : undefined;
+  const localeOpts = timeZone ? { timeZone } : {};
   const dateStr = d.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
+    ...localeOpts,
   });
   const timeStr = d.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
+    ...localeOpts,
   });
   return `Here's your appointments for today (${dateStr} - ${timeStr})`;
 }
@@ -151,7 +158,14 @@ function flattenAppointments(): { time: string; row: Row }[] {
 export default function DashboardPage() {
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const subtitle = formatSubtitle();
+  const [subtitle, setSubtitle] = useState(() => formatSubtitle());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSubtitle(formatSubtitle());
+    }, 60_000);
+    return () => clearInterval(interval);
+  }, []);
 
   const allRows = flattenAppointments();
   const totalPages = Math.max(1, Math.ceil(allRows.length / PAGE_SIZE));
@@ -202,11 +216,13 @@ export default function DashboardPage() {
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm ${iconBg} ${iconColor}`}>
                 <Icon className="w-5 h-5" />
               </div>
-              <span className="text-2xl font-bold text-foreground">{value}</span>
+              <div className="flex flex-col items-end">
+                <span className="text-2xl font-bold text-foreground">{value}</span>
+                <p className="text-sm text-muted-foreground mt-1 font-medium">
+                  {label}
+                </p>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground mt-3 font-medium">
-              {label}
-            </p>
           </div>
         ))}
       </div>
