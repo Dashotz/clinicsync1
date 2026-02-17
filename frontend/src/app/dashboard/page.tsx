@@ -251,7 +251,7 @@ export default function DashboardPage() {
             variant="outline"
             className="gap-2 shadow-sm hover:shadow-md border-border/80 bg-background hover:bg-muted/50 transition-shadow duration-200"
           >
-            Filter by Doctor
+            Filter by Dentist
             <ChevronDown className="w-4 h-4" />
           </Button>
         </div>

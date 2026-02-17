@@ -37,7 +37,7 @@ const ProductShowcase = () => {
                             {[
                                 {
                                     title: 'Smart Scheduling',
-                                    description: 'Optimize appointments based on treatment time, provider availability, and patient preferences',
+                                    description: 'Optimize appointments based on treatment time, dentist availability, and patient preferences',
                                 },
                                 {
                                     title: 'Real-Time Updates',

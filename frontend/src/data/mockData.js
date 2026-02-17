@@ -2,7 +2,7 @@ export const features = [
   {
     id: 1,
     title: "Clinic Digitalization",
-    description: "Transform your clinic with end-to-end digital tools—from paperless records to streamlined workflows that modernize operations.",
+    description: "Transform your clinic with end-to-end digital tools—from paperless records to efficient digital operations that modernize your practice.",
     icon: "Calendar",
     image: "https://images.unsplash.com/photo-1642844819197-5f5f21b89ff8"
   },
@@ -51,11 +51,10 @@ export const pricingPlans = [
     period: "/month",
     description: "Perfect for solo practitioners and small practices",
     features: [
-      "Up to 2 providers",
       "500 patient records",
       "Digital scheduling & records",
       "Patient management software",
-      "Patient portal",
+      "Patient registration",
       "Email & WhatsApp support"
     ],
     popular: false
@@ -65,13 +64,12 @@ export const pricingPlans = [
     name: "Pro",
     price: "₱12,000",
     period: "/month",
-    description: "Ideal for growing practices with multiple providers",
+    description: "Ideal for growing practices with multiple dentists",
     features: [
-      "Up to 5 providers",
       "1,500 patient records",
       "Digital scheduling & records",
       "Patient management software",
-      "Patient portal",
+      "Patient registration",
       "Email & WhatsApp support",
       "Revenue operations & analytics",
       "Dedicated account manager"
@@ -85,11 +83,10 @@ export const pricingPlans = [
     period: "/month",
     description: "Comprehensive solution for multi-location practices",
     features: [
-      "Up to 15 providers",
       "3,000 patient records",
       "Digital scheduling & records",
       "Patient management software",
-      "Patient portal",
+      "Patient registration",
       "Email & WhatsApp support",
       "Revenue operations & insights",
       "Complete clinic digitalization",
@@ -160,12 +157,11 @@ export const benefits = [
 
 export const comparisonFeatures = [
   { name: "Patient Limitation", basic: "500", pro: "1,500", enterprise: "3,000" },
-  { name: "Account Limitation", basic: "2", pro: "5", enterprise: "15" },
   { name: "Appointment Scheduling", basic: true, pro: true, enterprise: true },
   { name: "Patient Records", basic: true, pro: true, enterprise: true },
   { name: "Staff Management", basic: true, pro: true, enterprise: true },
   { name: "Reports & Analytics", basic: true, pro: true, enterprise: true },
-  { name: "Patient Portal", basic: true, pro: true, enterprise: true },
+  { name: "Patient Registration", basic: true, pro: true, enterprise: true },
   { name: "Accounts", basic: "Email & WhatsApp", pro: "Dedicated account manager", enterprise: "Dedicated account manager" },
   { name: "Multi-Location Support", basic: false, pro: false, enterprise: true }
 ];

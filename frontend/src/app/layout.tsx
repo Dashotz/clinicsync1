@@ -9,7 +9,10 @@ export const metadata: Metadata = {
     icon: [
       { url: '/brand/logo-lgt.svg', media: '(prefers-color-scheme: light)' },
       { url: '/brand/logo-drk.svg', media: '(prefers-color-scheme: dark)' },
+      { url: '/brand/logo-lgt.svg', type: 'image/svg+xml' },
     ],
+    shortcut: '/brand/logo-lgt.svg',
+    apple: '/brand/logo-lgt.svg',
   },
 };
 
