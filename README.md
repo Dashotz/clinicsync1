@@ -43,7 +43,7 @@ This is a frontend-only marketing and landing page for ClinicSync. The site pres
 
 ```
 clinicsync1/
-  frontend/
+  frontend/                # Next.js frontend application
     src/
       app/                 # Next.js App Router
         globals.css
@@ -51,6 +51,8 @@ clinicsync1/
         page.tsx           # Landing page
         login/
           page.tsx         # Login page
+        dashboard/
+          page.tsx         # Dashboard page
       components/          # Page sections and reusable UI
         ui/                # Button, Card, Sonner, etc.
       data/                # Mock data (features, pricing, testimonials)
@@ -59,6 +61,8 @@ clinicsync1/
         login/             # Login page views and styles
     next.config.js
     tailwind.config.js
+    vercel.json            # Vercel deployment config
+  backend/                # Backend API (to be implemented)
   memory/                  # PRD and product docs
   SECURITY.md              # Security audit notes
 ```
@@ -115,6 +119,41 @@ npm run lint
 ## Configuration
 
 Create a `frontend/.env.local` file for local overrides (e.g. API URLs). Next.js supports standard env variable naming.
+
+## Deployment
+
+### Frontend (Vercel)
+
+The frontend is configured for deployment on Vercel:
+
+1. **Via Vercel Dashboard:**
+   - Push code to GitHub
+   - Go to [vercel.com](https://vercel.com) and import your repository
+   - Set **Root Directory** to `frontend`
+   - Framework Preset: Next.js (auto-detected)
+   - Click "Deploy"
+
+2. **Via Vercel CLI:**
+   ```bash
+   cd frontend
+   npm i -g vercel
+   vercel
+   ```
+
+The `frontend/vercel.json` file contains the deployment configuration.
+
+### Backend (Future)
+
+The backend will be deployed separately. Common options:
+- **Railway** – Easy Node.js/Express deployment
+- **Render** – Free tier available, good for APIs
+- **AWS/Google Cloud** – For production scale
+- **Vercel Serverless Functions** – If using Next.js API routes
+
+When the backend is ready, update `frontend/.env.local` with the production API URL:
+```
+NEXT_PUBLIC_API_URL=https://your-backend-url.com
+```
 
 ## License
 
