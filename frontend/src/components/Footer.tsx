@@ -69,7 +69,7 @@ const Footer = () => {
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary shrink-0" />
                 <span className="text-foreground/80">
-                  123 Dental Plaza, Suite 456<br />San Francisco, CA 94103
+                  Bacoor, Philippines
                 </span>
               </li>
               <li className="flex items-center gap-3">
