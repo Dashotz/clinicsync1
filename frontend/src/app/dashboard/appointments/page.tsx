@@ -143,6 +143,25 @@ export default function AppointmentsPage() {
   }, [selectedDateStr, dentistFilter, statusFilter]);
   const totalCount = appointments.length;
 
+  const logAppointments = useMemo(() => {
+    let list = [...MOCK_APPOINTMENTS];
+    if (dentistFilter !== 'All Dentist') {
+      const dentistId = Number(dentistFilter);
+      const validIds = new Set(DENTISTS.map((d) => d.id));
+      if (!Number.isNaN(dentistId) && validIds.has(dentistId)) {
+        list = list.filter((apt) => apt.dentistId === dentistId);
+      }
+    }
+    if (statusFilter !== 'Status' && VALID_STATUSES.includes(statusFilter as AppointmentStatus)) {
+      list = list.filter((apt) => apt.status === statusFilter);
+    }
+    return list.sort((a, b) => {
+      const d = b.date.localeCompare(a.date);
+      return d !== 0 ? d : (parseTime(b.start) - parseTime(a.start));
+    });
+  }, [dentistFilter, statusFilter]);
+  const logTotalCount = logAppointments.length;
+
   const goPrevDay = () =>
     setSelectedDate((d) => {
       const next = new Date(d);
@@ -397,8 +416,89 @@ export default function AppointmentsPage() {
       )}
 
       {activeTab === 'log' && (
-        <div className="flex-1 min-h-0 rounded-xl border border-border bg-card p-4 sm:p-6">
-          <p className="text-sm text-muted-foreground">Appointment log view — list or table of past appointments can go here.</p>
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-4 mb-4 flex-shrink-0">
+            <span className="text-sm text-muted-foreground">{logTotalCount} Total appointments</span>
+            <div className="flex justify-center items-center gap-3 flex-wrap">
+              <select
+                className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
+                value={dentistFilter}
+                onChange={(e) => setDentistFilter(e.target.value)}
+              >
+                <option value="All Dentist">All Dentist</option>
+                {DENTISTS.map((d, i) => (
+                  <option key={d.id} value={String(d.id)}>
+                    {d.name} {i + 1}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="Status">Status</option>
+                <option value="Scheduled">Scheduled</option>
+                <option value="Check-in">Check-in</option>
+                <option value="Completed">Completed</option>
+                <option value="Not seen">Not seen</option>
+              </select>
+            </div>
+            <Button variant="outline" size="sm" className="gap-2 justify-self-end">
+              <Download className="w-4 h-4" />
+              Download
+            </Button>
+          </div>
+          <div className="flex-1 min-h-0 overflow-auto border border-border rounded-xl bg-card overscroll-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-border bg-muted/30">
+                  <th className="py-3 px-3 text-left text-xs font-medium text-muted-foreground">Date</th>
+                  <th className="py-3 px-3 text-left text-xs font-medium text-muted-foreground">Time</th>
+                  <th className="py-3 px-3 text-left text-xs font-medium text-muted-foreground">Patient</th>
+                  <th className="py-3 px-3 text-left text-xs font-medium text-muted-foreground">Dentist</th>
+                  <th className="py-3 px-3 text-left text-xs font-medium text-muted-foreground">Service</th>
+                  <th className="py-3 px-3 text-left text-xs font-medium text-muted-foreground">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {logAppointments.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center text-sm text-muted-foreground">
+                      No appointments match the filters.
+                    </td>
+                  </tr>
+                ) : (
+                  logAppointments.map((apt) => {
+                    const dentist = DENTISTS.find((d) => d.id === apt.dentistId);
+                    const { icon: Icon, bg } = STATUS_CONFIG[apt.status];
+                    const dateFormatted = new Date(apt.date + 'T12:00:00').toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    });
+                    return (
+                      <tr key={apt.id} className="border-b border-border last:border-b-0 hover:bg-muted/30">
+                        <td className="py-2 px-3 text-sm text-foreground">{dateFormatted}</td>
+                        <td className="py-2 px-3 text-sm text-muted-foreground">
+                          {apt.start} - {apt.end}
+                        </td>
+                        <td className="py-2 px-3 text-sm font-medium text-foreground truncate max-w-[140px]">{apt.patientName}</td>
+                        <td className="py-2 px-3 text-sm text-muted-foreground truncate max-w-[120px]">{dentist?.name ?? '-'}</td>
+                        <td className="py-2 px-3 text-sm text-muted-foreground truncate max-w-[140px]">{apt.service}</td>
+                        <td className="py-2 px-3">
+                          <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium ${bg}`}>
+                            <Icon className="w-3 h-3" />
+                            {apt.status}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
