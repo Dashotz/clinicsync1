@@ -313,41 +313,33 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 mb-3 sm:mb-4">
-            <div>
-              <p className="text-xl sm:text-2xl font-bold text-foreground">{patientsStats.newCount}</p>
-              <p className="text-xs sm:text-sm text-muted-foreground">New patients</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{patientsStats.newPct}%</p>
-            </div>
-            <div>
-              <p className="text-xl sm:text-2xl font-bold text-foreground">{patientsStats.returningCount}</p>
-              <p className="text-xs sm:text-sm text-muted-foreground">Returning patients</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{patientsStats.returningPct}%</p>
-            </div>
-          </div>
-          <div className="space-y-3 mt-auto">
-            <div>
-              <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                <span>New patients</span>
-                <span>{patientsStats.newPct}%</span>
-              </div>
-              <div className="h-2 rounded-full bg-muted overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-primary transition-all duration-300"
-                  style={{ width: `${patientsStats.newPct}%` }}
-                />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 flex-1 min-h-0">
+            {/* New patients column */}
+            <div className="flex flex-col min-w-0">
+              <p className="text-2xl sm:text-3xl font-bold text-foreground">{patientsStats.newCount}</p>
+              <p className="text-sm font-semibold text-foreground mt-1">{patientsStats.newPct}%</p>
+              <p className="text-sm text-muted-foreground mt-0.5">New patients</p>
+              <div className="mt-4 flex-1 min-h-[8px] flex flex-col justify-end">
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all duration-300"
+                    style={{ width: `${patientsStats.newPct}%` }}
+                  />
+                </div>
               </div>
             </div>
-            <div>
-              <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                <span>Returning patients</span>
-                <span>{patientsStats.returningPct}%</span>
-              </div>
-              <div className="h-2 rounded-full bg-muted overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-primary/60 transition-all duration-300"
-                  style={{ width: `${patientsStats.returningPct}%` }}
-                />
+            {/* Returning patients column */}
+            <div className="flex flex-col min-w-0 sm:border-l sm:border-border sm:pl-8">
+              <p className="text-2xl sm:text-3xl font-bold text-foreground">{patientsStats.returningCount}</p>
+              <p className="text-sm font-semibold text-foreground mt-1">{patientsStats.returningPct}%</p>
+              <p className="text-sm text-muted-foreground mt-0.5">Returning patients</p>
+              <div className="mt-4 flex-1 min-h-[8px] flex flex-col justify-end">
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-primary/60 transition-all duration-300"
+                    style={{ width: `${patientsStats.returningPct}%` }}
+                  />
+                </div>
               </div>
             </div>
           </div>
