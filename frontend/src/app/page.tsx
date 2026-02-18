@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
@@ -14,12 +14,8 @@ import Footer from '@/components/Footer';
 import { Toaster } from '@/components/ui/sonner';
 
 export default function HomePage() {
-  useEffect(() => {
-    document.title = 'ClinicSync | Dental Practice Management';
-  }, []);
-
   return (
-    <div className="App">
+    <div>
       <Header />
       <main>
         <Hero />

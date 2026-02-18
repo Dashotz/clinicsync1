@@ -189,10 +189,6 @@ html:not(.lenis) {
   animation: slide-in-from-top-5 0.3s ease-out;
 }
 
-.App {
-  min-height: 100vh;
-}
-
 ::-webkit-scrollbar {
   width: 10px;
 }

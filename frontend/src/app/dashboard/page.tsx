@@ -249,7 +249,7 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="w-full min-w-0" style={{ height: cashflowChartHeight, minHeight: cashflowChartHeight }}>
-          <ResponsiveContainer width="100%" height={cashflowChartHeight}>
+          <ResponsiveContainer width="100%" height={cashflowChartHeight} minWidth={0} minHeight={cashflowChartHeight}>
             <AreaChart data={cashflowChartData} margin={{ top: 8, right: 4, left: isMobile ? -8 : 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="cashflowGradient" x1="0" y1="0" x2="0" y2="1">
@@ -324,9 +324,9 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
-          <div className="w-full min-w-0 flex-1 flex flex-col items-center justify-center">
-            <div className="relative flex items-center justify-center" style={{ width: isMobile ? 180 : 220, height: isMobile ? 180 : 220 }}>
-              <ResponsiveContainer width="100%" height="100%">
+          <div className="w-full min-w-0 flex-1 flex flex-col items-center justify-center min-h-[180px]">
+            <div className="relative flex items-center justify-center w-[180px] h-[180px] sm:w-[220px] sm:h-[220px]">
+              <ResponsiveContainer width="100%" height="100%" minWidth={180} minHeight={180}>
                 <PieChart>
                   <Pie
                     data={patientsDonutData}
@@ -420,7 +420,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="w-full min-w-0" style={{ height: barChartHeight, minHeight: barChartHeight }}>
-            <ResponsiveContainer width="100%" height={barChartHeight}>
+            <ResponsiveContainer width="100%" height={barChartHeight} minWidth={0} minHeight={barChartHeight}>
               <BarChart
                 data={treatmentChartData}
                 layout="vertical"

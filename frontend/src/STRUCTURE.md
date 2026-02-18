@@ -54,11 +54,6 @@ src/
 ├── lib/
 │   ├── utils.ts                # cn() and helpers
 │   └── imageOptimizer.ts       # Image URL helpers
-└── styles/
-    ├── index.css
-    ├── App.css
-    └── components/
-        └── DotGrid.css
 ```
 
 ## Route summary
