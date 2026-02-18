@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import './LoginForm.css';
 
 export interface LoginFormProps {
@@ -74,6 +74,7 @@ export const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
     isSubmitting: false,
   });
   const [showPassword, setShowPassword] = useState(false);
+  const mountedRef = useRef(true);
 
   const emailError = useMemo(() => getFieldError(formState.errors, 'email'), [formState.errors]);
   const passwordError = useMemo(
@@ -106,9 +107,17 @@ export const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
 
     setFormState((prev) => ({ ...prev, credentials: sanitized, isSubmitting: true }));
     await new Promise((resolve) => setTimeout(resolve, 800));
+    if (!mountedRef.current) return;
     setFormState({ credentials: { email: '', password: '' }, errors: [], isSubmitting: false });
     onLoginSuccess();
   };
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   return (
     <div className="login-form-container">
