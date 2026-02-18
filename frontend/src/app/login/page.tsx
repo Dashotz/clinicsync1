@@ -18,7 +18,7 @@ export default function LoginRoute() {
   return (
     <LoginPage
       onLoginSuccess={() => {
-        router.push('/');
+        router.push('/dashboard');
         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
       }}
     />

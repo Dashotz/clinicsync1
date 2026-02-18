@@ -12,6 +12,8 @@ import {
   BarChart,
   Bar,
   Cell,
+  PieChart,
+  Pie,
 } from 'recharts';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -181,6 +183,15 @@ export default function DashboardPage() {
     return { newCount, returningCount, total, newPct, returningPct };
   }, [patientsPeriod]);
 
+  // Patients: donut chart (New = dark blue, Returning = light blue)
+  const patientsDonutData = useMemo(
+    () => [
+      { name: 'New patients', value: patientsStats.newCount, fill: '#2563eb' },
+      { name: 'Returning patients', value: patientsStats.returningCount, fill: '#93c5fd' },
+    ],
+    [patientsStats.newCount, patientsStats.returningCount]
+  );
+
   // Popular treatments: by period with bar colors
   const treatmentChartData = useMemo(() => {
     const rows = TREATMENTS_BY_PERIOD[treatmentPeriod] ?? TREATMENTS_BY_PERIOD['This month'];
@@ -313,34 +324,68 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 flex-1 min-h-0">
-            {/* New patients column */}
-            <div className="flex flex-col min-w-0">
-              <p className="text-2xl sm:text-3xl font-bold text-foreground">{patientsStats.newCount}</p>
-              <p className="text-sm font-semibold text-foreground mt-1">{patientsStats.newPct}%</p>
-              <p className="text-sm text-muted-foreground mt-0.5">New patients</p>
-              <div className="mt-4 flex-1 min-h-[8px] flex flex-col justify-end">
-                <div className="h-2 rounded-full bg-muted overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-primary transition-all duration-300"
-                    style={{ width: `${patientsStats.newPct}%` }}
+          <div className="w-full min-w-0 flex-1 flex flex-col items-center justify-center">
+            <div className="relative flex items-center justify-center" style={{ width: isMobile ? 180 : 220, height: isMobile ? 180 : 220 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={patientsDonutData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius="60%"
+                    outerRadius="100%"
+                    strokeWidth={0}
+                    paddingAngle={0}
+                  >
+                    {patientsDonutData.map((entry, index) => (
+                      <Cell key={entry.name} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    content={({ active, payload, coordinate }) => {
+                      if (!active || !payload?.length || !coordinate) return null;
+                      const entry = payload[0].payload as { name: string; value: number; fill: string };
+                      const fill = entry.fill;
+                      // Position tooltip outside the chart (to the right of cursor)
+                      const x = coordinate.x + (isMobile ? 12 : 20);
+                      const y = coordinate.y;
+                      return (
+                        <div
+                          className="rounded-lg px-3 py-2 text-sm font-medium shadow-md border-0"
+                          style={{
+                            position: 'absolute',
+                            left: x,
+                            top: y,
+                            transform: 'translateY(-50%)',
+                            backgroundColor: fill,
+                            color: fill === '#93c5fd' ? '#1e3a5f' : '#fff',
+                            pointerEvents: 'none',
+                            zIndex: 10,
+                          }}
+                        >
+                          {entry.name} : {entry.value}
+                        </div>
+                      );
+                    }}
                   />
-                </div>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <p className="text-2xl sm:text-3xl font-bold text-foreground">{patientsStats.total}</p>
+                <p className="text-sm text-muted-foreground mt-0.5">Patients</p>
               </div>
             </div>
-            {/* Returning patients column */}
-            <div className="flex flex-col min-w-0 sm:border-l sm:border-border sm:pl-8">
-              <p className="text-2xl sm:text-3xl font-bold text-foreground">{patientsStats.returningCount}</p>
-              <p className="text-sm font-semibold text-foreground mt-1">{patientsStats.returningPct}%</p>
-              <p className="text-sm text-muted-foreground mt-0.5">Returning patients</p>
-              <div className="mt-4 flex-1 min-h-[8px] flex flex-col justify-end">
-                <div className="h-2 rounded-full bg-muted overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-primary/60 transition-all duration-300"
-                    style={{ width: `${patientsStats.returningPct}%` }}
-                  />
-                </div>
-              </div>
+            <div className="flex items-center justify-center gap-4 sm:gap-6 mt-3 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-sm bg-[#2563eb]" aria-hidden />
+                New patients
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-sm bg-[#93c5fd]" aria-hidden />
+                Returning patients
+              </span>
             </div>
           </div>
         </section>

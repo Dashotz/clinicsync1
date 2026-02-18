@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import {
   Home,
@@ -10,6 +11,7 @@ import {
   BarChart3,
   Bell,
   Settings,
+  LogOut,
 } from 'lucide-react';
 import { ModeToggle } from '@/components/mode-toggle';
 
@@ -21,6 +23,7 @@ const navItems = [
 ];
 
 export function DashboardSidebar() {
+  const pathname = usePathname();
   return (
     <aside className="w-32 flex flex-col items-center py-6 bg-card border-r border-border min-h-screen overflow-hidden shrink-0 shadow-[2px_0_12px_-4px_rgba(0,0,0,0.06)] dark:shadow-[2px_0_12px_-4px_rgba(0,0,0,0.25)]">
       <Link
@@ -50,7 +53,7 @@ export function DashboardSidebar() {
             key={href}
             href={href}
             className={`w-full min-w-0 flex flex-col items-center gap-1.5 py-3 px-2 rounded-lg transition-all duration-200 box-border ${
-              href === '/dashboard'
+              pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
                 ? 'bg-primary/12 text-primary shadow-sm ring-1 ring-primary/20 dark:bg-primary/15 dark:ring-primary/25'
                 : 'text-muted-foreground hover:bg-muted/80 hover:text-foreground hover:shadow-sm dark:hover:bg-muted/60'
             }`}
@@ -82,6 +85,14 @@ export function DashboardSidebar() {
         <div className="mt-2 w-9 h-9 rounded-full bg-primary/15 text-primary font-semibold text-sm shrink-0 ring-1 ring-primary/20 dark:bg-primary/20 dark:ring-primary/25 shadow-sm flex items-center justify-center">
           IL
         </div>
+        <Link
+          href="/login"
+          className="w-full min-w-0 flex flex-col items-center gap-1.5 py-3 px-2 rounded-lg text-muted-foreground hover:bg-muted/80 hover:text-foreground hover:shadow-sm transition-all duration-200 mt-2 dark:hover:bg-muted/60"
+          aria-label="Log out"
+        >
+          <LogOut className="w-5 h-5 shrink-0" />
+          <span className="text-xs font-medium text-center leading-tight whitespace-nowrap">Log out</span>
+        </Link>
       </div>
     </aside>
   );

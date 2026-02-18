@@ -19,20 +19,45 @@ type LoginFormState = {
 };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_EMAIL_LENGTH = 320;
+const MIN_PASSWORD_LENGTH = 8;
+const MAX_PASSWORD_LENGTH = 128;
+
+/** For email: trim, strip control chars, limit length. Use on change and submit. */
+function sanitizeEmail(value: string): string {
+  const trimmed = value.trim();
+  const noControl = trimmed.replace(/[\x00-\x1f\x7f]/g, '');
+  return noControl.slice(0, MAX_EMAIL_LENGTH);
+}
+
+/** For password input while typing: only strip control chars and limit length (no trim). */
+function sanitizePasswordInput(value: string): string {
+  const noControl = value.replace(/[\x00-\x1f\x7f]/g, '');
+  return noControl.slice(0, MAX_PASSWORD_LENGTH);
+}
+
+/** For password on submit: trim then same as input sanitization for validation. */
+function sanitizePasswordForValidation(value: string): string {
+  return sanitizePasswordInput(value.trim());
+}
 
 function validateCredentials(credentials: LoginCredentials): FieldError[] {
   const errors: FieldError[] = [];
+  const email = sanitizeEmail(credentials.email);
+  const password = sanitizePasswordForValidation(credentials.password);
 
-  if (!credentials.email.trim()) {
+  if (!email) {
     errors.push({ field: 'email', message: 'Email is required' });
-  } else if (!EMAIL_REGEX.test(credentials.email)) {
+  } else if (!EMAIL_REGEX.test(email)) {
     errors.push({ field: 'email', message: 'Please enter a valid email address' });
   }
 
-  if (!credentials.password) {
+  if (!password) {
     errors.push({ field: 'password', message: 'Password is required' });
-  } else if (credentials.password.length < 8) {
-    errors.push({ field: 'password', message: 'Password must be at least 8 characters' });
+  } else if (password.length < MIN_PASSWORD_LENGTH) {
+    errors.push({ field: 'password', message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters` });
+  } else if (password.length > MAX_PASSWORD_LENGTH) {
+    errors.push({ field: 'password', message: `Password must be at most ${MAX_PASSWORD_LENGTH} characters` });
   }
 
   return errors;
@@ -57,24 +82,30 @@ export const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
   );
 
   const updateField = useCallback((field: keyof LoginCredentials, value: string) => {
+    const sanitized =
+      field === 'email' ? sanitizeEmail(value) : sanitizePasswordInput(value);
     setFormState((prev) => ({
       ...prev,
-      credentials: { ...prev.credentials, [field]: value },
+      credentials: { ...prev.credentials, [field]: sanitized },
       errors: prev.errors.filter((e) => e.field !== field),
     }));
   }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
-    const validationErrors = validateCredentials(formState.credentials);
+    const sanitized = {
+      email: sanitizeEmail(formState.credentials.email),
+      password: sanitizePasswordForValidation(formState.credentials.password),
+    };
+    const validationErrors = validateCredentials(sanitized);
 
     if (validationErrors.length > 0) {
-      setFormState((prev) => ({ ...prev, errors: validationErrors }));
+      setFormState((prev) => ({ ...prev, credentials: sanitized, errors: validationErrors }));
       return;
     }
 
-    setFormState((prev) => ({ ...prev, isSubmitting: true }));
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setFormState((prev) => ({ ...prev, credentials: sanitized, isSubmitting: true }));
+    await new Promise((resolve) => setTimeout(resolve, 800));
     setFormState({ credentials: { email: '', password: '' }, errors: [], isSubmitting: false });
     onLoginSuccess();
   };
