@@ -226,15 +226,6 @@ export function ConstellationBackground({
         }}
       />
 
-      {/* Vignette */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(10,10,10,0.8) 100%)",
-        }}
-      />
-
       {children && <div className="relative z-10 h-full w-full">{children}</div>}
     </div>
   );

@@ -53,7 +53,7 @@ export function DashboardSidebar() {
             key={href}
             href={href}
             className={`w-full min-w-0 flex flex-col items-center gap-1.5 py-3 px-2 rounded-lg transition-all duration-200 box-border ${
-              pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
+              pathname === href || (href !== '/dashboard' && pathname?.startsWith(href))
                 ? 'bg-primary/12 text-primary shadow-sm ring-1 ring-primary/20 dark:bg-primary/15 dark:ring-primary/25'
                 : 'text-muted-foreground hover:bg-muted/80 hover:text-foreground hover:shadow-sm dark:hover:bg-muted/60'
             }`}
