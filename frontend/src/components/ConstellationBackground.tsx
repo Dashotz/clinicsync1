@@ -100,7 +100,9 @@ export function ConstellationBackground({
     const ro = new ResizeObserver(handleResize);
     ro.observe(container);
 
+    let paused = false;
     const animate = () => {
+      if (paused) return;
       ctx.clearRect(0, 0, width, height);
 
       for (const node of nodes) {
@@ -180,10 +182,24 @@ export function ConstellationBackground({
       animationId = requestAnimationFrame(animate);
     };
 
+    const start = () => {
+      paused = false;
+      animationId = requestAnimationFrame(animate);
+    };
+    const stop = () => {
+      paused = true;
+      if (animationId) cancelAnimationFrame(animationId);
+      animationId = 0;
+    };
+
+    const onVisibility = () => (document.hidden ? stop() : start());
+    document.addEventListener("visibilitychange", onVisibility);
+
     animationId = requestAnimationFrame(animate);
 
     return () => {
-      cancelAnimationFrame(animationId);
+      document.removeEventListener("visibilitychange", onVisibility);
+      stop();
       container.removeEventListener("mousemove", handleMouseMove);
       container.removeEventListener("mouseleave", handleMouseLeave);
       ro.disconnect();

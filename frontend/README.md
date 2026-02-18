@@ -1,70 +1,51 @@
-# Getting Started with Create React App
+# ClinicSync Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Next.js 15 application (App Router) for the ClinicSync landing page and dashboard.
 
-## Available Scripts
+## Tech stack
 
-In the project directory, you can run:
+- **Next.js 15** — App Router, React Server Components
+- **React 19** — UI
+- **TypeScript** — Strict mode
+- **Tailwind CSS** — Styling
+- **Recharts** — Dashboard charts
+- **Lucide React** — Icons
+- **next-themes** — Light/dark theme
+- **Radix UI** (via shadcn-style components) — Button, Card, Sonner, etc.
 
-### `npm start`
+## Scripts
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start dev server at [http://localhost:3000](http://localhost:3000) |
+| `npm run build` | Production build (output in `.next`) |
+| `npm run start` | Run production server (after `build`) |
+| `npm run lint` | Run ESLint |
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Routes
 
-### `npm test`
+- `/` — Landing
+- `/login` — Login (redirects to `/dashboard` on success)
+- `/dashboard` — Dashboard (analytics)
+- `/dashboard/appointments` — Calendar & appointment log
+- `/dashboard/appointments/new` — New appointment (placeholder)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Source layout
 
-### `npm run build`
+- `src/app/` — App Router pages and layouts
+- `src/components/` — Reusable components (`ui/`, `dashboard/`)
+- `src/views/login/` — Login form and layout
+- `src/lib/` — Utilities
+- `src/data/` — Mock data
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+See `src/STRUCTURE.md` for the full tree and import paths.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Configuration
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- **Next.js:** `next.config.js` (security headers, etc.)
+- **Tailwind:** `tailwind.config.ts`
+- **Env:** `.env.local` for local overrides
 
-### `npm run eject`
+## Deployment
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Designed for Vercel. Set root directory to `frontend` when linking the repo.

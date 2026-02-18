@@ -32,14 +32,36 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
 
     requestAnimationFrame(() => setLenis(instance));
 
+    let running = true;
     function raf(time: number) {
+      if (!running) return;
       instance.raf(time);
       rafRef.current = requestAnimationFrame(raf);
     }
-    rafRef.current = requestAnimationFrame(raf);
+
+    function start() {
+      running = true;
+      rafRef.current = requestAnimationFrame(raf);
+    }
+    function stop() {
+      running = false;
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = 0;
+      }
+    }
+
+    start();
+
+    const onVisibility = () => {
+      if (document.hidden) stop();
+      else start();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
 
     return () => {
-      cancelAnimationFrame(rafRef.current);
+      document.removeEventListener('visibilitychange', onVisibility);
+      stop();
       instance.destroy();
       document.documentElement.classList.remove('lenis');
       setLenis(null);

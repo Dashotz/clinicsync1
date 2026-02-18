@@ -71,13 +71,13 @@ const ProductShowcase = () => {
                     {/* Right content - Video/Image showcase */}
                     <AnimatedSection animation="slideLeft" delay={0.2}>
                         <div className="relative">
-                        <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-border">
+                        <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-border h-[50vh] max-h-[28rem] min-h-[220px] flex items-center justify-center bg-muted/30">
                             <img
                                 src={getOptimizedImageUrl("https://images.unsplash.com/photo-1642844819197-5f5f21b89ff8", 800)}
                                 srcSet={getResponsiveSrcSet("https://images.unsplash.com/photo-1642844819197-5f5f21b89ff8", [400, 800, 1200])}
                                 sizes={getSizesAttribute({ desktop: '50vw' })}
                                 alt="Product showcase"
-                                className="w-full h-auto"
+                                className="w-full h-full object-contain"
                                 loading="lazy"
                             />
 

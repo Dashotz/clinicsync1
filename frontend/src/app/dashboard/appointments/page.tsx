@@ -180,8 +180,22 @@ export default function AppointmentsPage() {
   useEffect(() => {
     const tick = () => setCurrentHour(new Date().getHours() + new Date().getMinutes() / 60);
     tick();
-    const id = setInterval(tick, 60_000);
-    return () => clearInterval(id);
+    let id: ReturnType<typeof setInterval> | null = null;
+    const onVisibility = () => {
+      if (document.hidden) {
+        if (id) clearInterval(id);
+        id = null;
+      } else {
+        tick();
+        id = setInterval(tick, 60_000);
+      }
+    };
+    id = setInterval(tick, 60_000);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      if (id) clearInterval(id);
+    };
   }, []);
 
   const tableScrollRef = useRef<HTMLDivElement>(null);
