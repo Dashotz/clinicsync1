@@ -25,22 +25,22 @@ export function DashboardSidebar() {
     <aside className="w-32 flex flex-col items-center py-6 bg-card border-r border-border min-h-screen overflow-hidden shrink-0 shadow-[2px_0_12px_-4px_rgba(0,0,0,0.06)] dark:shadow-[2px_0_12px_-4px_rgba(0,0,0,0.25)]">
       <Link
         href="/dashboard"
-        className="mb-8 flex items-center justify-center w-10 h-10 rounded-lg overflow-hidden shrink-0 ring-1 ring-border/50 dark:ring-border/30"
+        className="mb-8 flex items-center justify-center w-10 h-10 rounded-lg overflow-hidden shrink-0 ring-1 ring-border/50 dark:ring-border/30 relative"
         aria-label="ClinicSync"
       >
         <Image
           src="/brand/logo-lgt.svg"
           alt=""
-          width={40}
-          height={40}
-          className="block dark:hidden"
+          fill
+          className="block dark:hidden object-contain"
+          sizes="40px"
         />
         <Image
           src="/brand/logo-drk.svg"
           alt=""
-          width={40}
-          height={40}
-          className="hidden dark:block"
+          fill
+          className="hidden dark:block object-contain"
+          sizes="40px"
         />
       </Link>
 
