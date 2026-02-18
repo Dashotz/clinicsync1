@@ -14,6 +14,8 @@ import {
   Cell,
 } from 'recharts';
 import { ChevronDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ButtonGroup } from '@/components/ui/button-group';
 
 function useIsMobile(breakpoint = 640) {
   const [isMobile, setIsMobile] = useState(false);
@@ -28,11 +30,39 @@ function useIsMobile(breakpoint = 640) {
 }
 
 const CASHFLOW_RANGES = [
-  { label: 'Aug - Jan 2026', value: 'full' },
   { label: 'Last 6 months', value: '6m' },
   { label: 'Last 3 months', value: '3m' },
   { label: 'Last 7 days', value: '7d' },
 ] as const;
+
+type CashflowRangeValue = (typeof CASHFLOW_RANGES)[number]['value'];
+
+function getCashflowDateRangeLabel(range: CashflowRangeValue): string {
+  const now = new Date();
+  const start = new Date(now);
+  if (range === '7d') {
+    start.setDate(start.getDate() - 6);
+    const startStr = start.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: start.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
+    });
+    const endStr = now.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+    return `${startStr} - ${endStr}`;
+  }
+  if (range === '3m') {
+    start.setMonth(start.getMonth() - 3);
+  } else {
+    start.setMonth(start.getMonth() - 6);
+  }
+  const startStr = start.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  const endStr = now.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  return `${startStr} - ${endStr}`;
+}
 
 // Full cashflow data: monthly (Aug–Jan) and daily for last 7 days
 const CASHFLOW_MONTHLY = [
@@ -99,7 +129,7 @@ function formatDate() {
 
 export default function DashboardPage() {
   const isMobile = useIsMobile();
-  const [cashflowRange, setCashflowRange] = useState<(typeof CASHFLOW_RANGES)[number]['value']>('full');
+  const [cashflowRange, setCashflowRange] = useState<CashflowRangeValue>('6m');
   const [patientsPeriod, setPatientsPeriod] = useState('This month');
   const [treatmentPeriod, setTreatmentPeriod] = useState('This month');
   const [patientsOpen, setPatientsOpen] = useState(false);
@@ -127,9 +157,9 @@ export default function DashboardPage() {
       };
     }
     const slice =
-      cashflowRange === 'full' ? CASHFLOW_MONTHLY :
       cashflowRange === '6m' ? CASHFLOW_MONTHLY :
-      CASHFLOW_MONTHLY.slice(-3); // 3m
+      cashflowRange === '3m' ? CASHFLOW_MONTHLY.slice(-3) :
+      CASHFLOW_MONTHLY; // 7d handled above; fallback
     const total = slice.reduce((s, d) => s + d.value, 0);
     const maxVal = Math.max(...slice.map((d) => d.value));
     const yMax = Math.ceil((maxVal * 1.15) / 5000) * 5000;
@@ -172,7 +202,7 @@ export default function DashboardPage() {
       {/* Header: greeting + date */}
       <header className="flex flex-col gap-0.5 sm:gap-1 mb-4 sm:mb-6 flex-shrink-0">
         <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
-          {greeting}, Diddy!
+          {greeting}, User!
         </h1>
         <p className="text-muted-foreground text-xs sm:text-sm truncate max-w-full">{dateStr}</p>
       </header>
@@ -182,28 +212,29 @@ export default function DashboardPage() {
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
           <div>
             <h2 className="text-base sm:text-lg font-bold text-foreground">Cashflow</h2>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Total Cash</p>
-            <p className="text-xl sm:text-2xl font-bold text-foreground mt-1 break-all">
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">Total Cash</p>
+            <p className="text-xl sm:text-2xl font-bold text-foreground mt-0.5 break-all">
               ₱{cashflowTotal.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
             </p>
           </div>
-          <div className="flex items-center sm:self-start overflow-x-auto -mx-1 px-1 pb-1 sm:mx-0 sm:overflow-visible sm:pb-0 sm:pt-0.5">
-            <div className="flex gap-2 flex-nowrap sm:flex-wrap min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 overflow-x-auto -mx-1 px-1 pb-1 sm:mx-0 sm:overflow-visible sm:pb-0 sm:pt-0.5">
+            <p className="text-xs sm:text-sm text-muted-foreground shrink-0" aria-live="polite">
+              {getCashflowDateRangeLabel(cashflowRange)}
+            </p>
+            <ButtonGroup aria-label="Cashflow date range" className="shrink-0 flex-nowrap sm:flex-wrap">
               {CASHFLOW_RANGES.map(({ label, value }) => (
-                <button
+                <Button
                   key={value}
                   type="button"
+                  variant={cashflowRange === value ? 'default' : 'secondary'}
+                  size="sm"
                   onClick={() => setCashflowRange(value)}
-                  className={`shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
-                    cashflowRange === value
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted/80 text-muted-foreground hover:bg-muted hover:text-foreground'
-                  }`}
+                  className="whitespace-nowrap text-xs sm:text-sm px-2.5 sm:px-3"
                 >
                   {label}
-                </button>
+                </Button>
               ))}
-            </div>
+            </ButtonGroup>
           </div>
         </div>
         <div className="w-full min-w-0" style={{ height: cashflowChartHeight, minHeight: cashflowChartHeight }}>
