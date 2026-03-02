@@ -1,3 +1,5 @@
+'use client';
+
 import { useTheme } from "next-themes"
 import { Toaster as Sonner, toast } from "sonner"
 
@@ -8,6 +10,7 @@ const Toaster = ({
 
     return (
         <Sonner
+            position="top-center"
             theme={theme as any}
             className="toaster group"
             toastOptions={{

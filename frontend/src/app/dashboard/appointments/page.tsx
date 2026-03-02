@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import Link from 'next/link';
 import {
   ChevronLeft,
   ChevronRight,
@@ -10,9 +9,15 @@ import {
   User,
   Check,
   XCircle,
+  Plus,
+  Ban,
+  CalendarCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
+import { cn } from '@/lib/utils';
+import { NewAppointmentModal, type NewAppointmentSavedData } from './NewAppointmentModal';
+import { AppointmentDetailsModal } from './AppointmentDetailsModal';
 
 const TIME_SLOTS = ['9 am', '10 am', '11 am', '12 pm', '1 pm', '2 pm', '3 pm', '4 pm'];
 const SLOT_HOURS = [9, 10, 11, 12, 13, 14, 15, 16];
@@ -28,6 +33,7 @@ type Appointment = {
   service: string;
   status: AppointmentStatus;
   date: string; // YYYY-MM-DD
+  teeth?: number[];
 };
 
 const DENTISTS = [
@@ -52,6 +58,25 @@ function getTodayStr(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+/** Parse "9:00 AM" / "1:30 PM" to 24h "09:00" / "13:30" */
+function parseTimeTo24(timeStr: string): string {
+  const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return '09:00';
+  let hour = Number(match[1]);
+  const min = match[2];
+  const pm = match[3].toUpperCase() === 'PM';
+  if (pm && hour !== 12) hour += 12;
+  if (!pm && hour === 12) hour = 0;
+  return `${String(hour).padStart(2, '0')}:${min}`;
+}
+
+/** Add 1 hour to "HH:MM" */
+function addOneHour(time24: string): string {
+  const [h, m] = time24.split(':').map(Number);
+  const next = (h + 1) % 24;
+  return `${String(next).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
 function getAllMockAppointments(): Appointment[] {
   const todayStr = getTodayStr();
   if (todayStr === '2026-01-06') return MOCK_APPOINTMENTS_JAN6;
@@ -64,7 +89,7 @@ function getAllMockAppointments(): Appointment[] {
   return [...MOCK_APPOINTMENTS_JAN6, ...forToday];
 }
 
-const MOCK_APPOINTMENTS = getAllMockAppointments();
+const INITIAL_APPOINTMENTS = getAllMockAppointments();
 
 const NOT_AVAILABLE_SLOTS: { dentistId: number; slotIndex: number }[] = [
   { dentistId: 1, slotIndex: 2 },
@@ -72,11 +97,34 @@ const NOT_AVAILABLE_SLOTS: { dentistId: number; slotIndex: number }[] = [
 
 const VALID_STATUSES: readonly AppointmentStatus[] = ['Scheduled', 'Check-in', 'Completed', 'Not seen'];
 
-const STATUS_CONFIG: Record<AppointmentStatus, { icon: typeof Clock; bg: string }> = {
-  Scheduled: { icon: Clock, bg: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200' },
-  'Check-in': { icon: User, bg: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200' },
-  Completed: { icon: Check, bg: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200' },
-  'Not seen': { icon: XCircle, bg: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200' },
+const STATUS_CONFIG: Record<
+  AppointmentStatus,
+  { icon: typeof Clock; bg: string; iconCircle: string; statusText: string }
+> = {
+  Scheduled: {
+    icon: Clock,
+    bg: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200',
+    iconCircle: 'bg-amber-700 text-white dark:bg-amber-600',
+    statusText: 'text-amber-800 dark:text-amber-200',
+  },
+  'Check-in': {
+    icon: User,
+    bg: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200',
+    iconCircle: 'bg-emerald-600 text-white dark:bg-emerald-500',
+    statusText: 'text-emerald-800 dark:text-emerald-200',
+  },
+  Completed: {
+    icon: Check,
+    bg: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200',
+    iconCircle: 'bg-green-600 text-white dark:bg-green-500',
+    statusText: 'text-green-800 dark:text-green-200',
+  },
+  'Not seen': {
+    icon: XCircle,
+    bg: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200',
+    iconCircle: 'bg-red-600 text-white dark:bg-red-500',
+    statusText: 'text-red-800 dark:text-red-200',
+  },
 };
 
 function parseTime(t: string): number {
@@ -85,27 +133,45 @@ function parseTime(t: string): number {
 }
 
 const CARD_STYLES: Record<AppointmentStatus, string> = {
-  Scheduled: 'bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800/50',
-  'Check-in': 'bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800/50',
-  Completed: 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800/50',
-  'Not seen': 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800/50',
+  Scheduled: 'bg-amber-50/90 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-800/50',
+  'Check-in': 'bg-emerald-50/90 border border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800/50',
+  Completed: 'bg-green-50/90 border border-green-200 dark:bg-green-900/20 dark:border-green-800/50',
+  'Not seen': 'bg-red-50/90 border border-red-200 dark:bg-red-900/20 dark:border-red-800/50',
 };
 
+function formatTimeRange(start: string, end: string): string {
+  const fmt = (t: string) => {
+    const [h, m] = t.split(':').map(Number);
+    const am = h < 12;
+    const h12 = h % 12 || 12;
+    return `${h12}:${String(m).padStart(2, '0')} ${am ? 'am' : 'pm'}`;
+  };
+  return `${fmt(start)} - ${fmt(end)}`;
+}
+
 function AppointmentCard({ cell }: { cell: Appointment }) {
-  const { icon: Icon, bg } = STATUS_CONFIG[cell.status];
-  const hour = Number(cell.start.split(':')[0]);
+  const { icon: Icon, iconCircle, statusText } = STATUS_CONFIG[cell.status];
   return (
-    <>
-      <div className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium ${bg}`}>
-        <Icon className="w-3 h-3" />
-        {cell.status}
+    <div className="flex flex-col gap-1.5 h-full">
+      <div className="flex items-start justify-between gap-2 min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
+          <span
+            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${iconCircle}`}
+            aria-hidden
+          >
+            <Icon className="w-3.5 h-3.5" />
+          </span>
+          <p className="font-medium text-foreground text-sm truncate">{cell.patientName}</p>
+        </div>
+        <span className={`text-xs font-medium shrink-0 ${statusText}`}>{cell.status}</span>
       </div>
-      <p className="font-medium text-foreground text-sm mt-1 truncate">{cell.patientName}</p>
-      <p className="text-xs text-muted-foreground">
-        {cell.start} - {cell.end} {hour < 12 ? 'am' : 'pm'}
-      </p>
-      <p className="text-xs text-muted-foreground truncate">{cell.service}</p>
-    </>
+      <p className="text-xs text-muted-foreground">{formatTimeRange(cell.start, cell.end)}</p>
+      <div className="mt-0.5">
+        <span className="inline-block rounded-full border border-border bg-background/90 px-2.5 py-0.5 text-xs text-foreground">
+          {cell.service}
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -114,6 +180,13 @@ export default function AppointmentsPage() {
   const [selectedDate, setSelectedDate] = useState(() => new Date());
   const [dentistFilter, setDentistFilter] = useState('All Dentist');
   const [statusFilter, setStatusFilter] = useState('Status');
+  const [newAppointmentOpen, setNewAppointmentOpen] = useState(false);
+  const [appointmentsList, setAppointmentsList] = useState<Appointment[]>(() => INITIAL_APPOINTMENTS);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  /** User-toggled "not available" slots: key = "dentistId-slotIndex" */
+  const [userNotAvailableSlots, setUserNotAvailableSlots] = useState<Set<string>>(new Set());
+  /** Slots from NOT_AVAILABLE_SLOTS that user chose to make available: key = "dentistId-slotIndex" */
+  const [userAvailableOverrides, setUserAvailableOverrides] = useState<Set<string>>(new Set());
 
   const dateLabel = selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const isToday = useMemo(() => {
@@ -128,7 +201,7 @@ export default function AppointmentsPage() {
   );
 
   const appointments = useMemo(() => {
-    let list = MOCK_APPOINTMENTS.filter((apt) => apt.date === selectedDateStr);
+    let list = appointmentsList.filter((apt) => apt.date === selectedDateStr);
     if (dentistFilter !== 'All Dentist') {
       const dentistId = Number(dentistFilter);
       const validIds = new Set(DENTISTS.map((d) => d.id));
@@ -140,11 +213,11 @@ export default function AppointmentsPage() {
       list = list.filter((apt) => apt.status === statusFilter);
     }
     return list;
-  }, [selectedDateStr, dentistFilter, statusFilter]);
+  }, [appointmentsList, selectedDateStr, dentistFilter, statusFilter]);
   const totalCount = appointments.length;
 
   const logAppointments = useMemo(() => {
-    let list = [...MOCK_APPOINTMENTS];
+    let list = [...appointmentsList];
     if (dentistFilter !== 'All Dentist') {
       const dentistId = Number(dentistFilter);
       const validIds = new Set(DENTISTS.map((d) => d.id));
@@ -159,7 +232,7 @@ export default function AppointmentsPage() {
       const d = b.date.localeCompare(a.date);
       return d !== 0 ? d : (parseTime(b.start) - parseTime(a.start));
     });
-  }, [dentistFilter, statusFilter]);
+  }, [appointmentsList, dentistFilter, statusFilter]);
   const logTotalCount = logAppointments.length;
 
   const goPrevDay = () =>
@@ -233,7 +306,14 @@ export default function AppointmentsPage() {
       });
     });
     NOT_AVAILABLE_SLOTS.forEach(({ dentistId, slotIndex }) => {
-      if (grid[slotIndex]) grid[slotIndex][dentistId] = ['not-available'];
+      const key = `${dentistId}-${slotIndex}`;
+      if (grid[slotIndex] && !userAvailableOverrides.has(key)) grid[slotIndex][dentistId] = ['not-available'];
+    });
+    userNotAvailableSlots.forEach((key) => {
+      const [dentistId, slotIndex] = key.split('-').map(Number);
+      if (grid[slotIndex] && grid[slotIndex][dentistId]?.length === 0) {
+        grid[slotIndex][dentistId] = ['not-available'];
+      }
     });
     appointments.forEach((apt) => {
       const hour = parseTime(apt.start);
@@ -251,7 +331,20 @@ export default function AppointmentsPage() {
       }
     });
     return grid;
-  }, [appointments]);
+  }, [appointments, userNotAvailableSlots, userAvailableOverrides]);
+
+  const toggleSlotNotAvailable = (dentistId: number, slotIndex: number) => {
+    const key = `${dentistId}-${slotIndex}`;
+    setUserNotAvailableSlots((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else {
+        next.add(key);
+        setUserAvailableOverrides((o) => { const n = new Set(o); n.delete(key); return n; });
+      }
+      return next;
+    });
+  };
 
   const appointmentCountByDentist = useMemo(() => {
     const count: Record<number, number> = {};
@@ -263,9 +356,53 @@ export default function AppointmentsPage() {
     <div className="h-full flex flex-col min-h-0 overflow-hidden p-4 sm:p-6 lg:p-8 bg-background">
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 flex-shrink-0">
         <h1 className="text-xl sm:text-2xl font-bold text-foreground">Appointment</h1>
-        <Button className="w-fit shrink-0" asChild>
-          <Link href="/dashboard/appointments/new">+ New Appointment</Link>
+        <Button className="w-fit shrink-0" onClick={() => setNewAppointmentOpen(true)}>
+          + New Appointment
         </Button>
+        <NewAppointmentModal
+          open={newAppointmentOpen}
+          onOpenChange={setNewAppointmentOpen}
+          onSave={(data: NewAppointmentSavedData) => {
+            const { step1, step2 } = data;
+            const start = parseTimeTo24(step1.time);
+            const end = addOneHour(start);
+            const newAppointment: Appointment = {
+              id: `new-${Date.now()}`,
+              dentistId: Number(step1.dentistId),
+              patientName: step2.patientName || 'New Patient',
+              start,
+              end,
+              service: step1.treatment || 'General check-up',
+              status: 'Scheduled',
+              date: step1.date,
+            };
+            setAppointmentsList((prev) => [...prev, newAppointment]);
+          }}
+        />
+        <AppointmentDetailsModal
+          open={!!selectedAppointment}
+          onOpenChange={(open) => !open && setSelectedAppointment(null)}
+          appointment={selectedAppointment}
+          dentistName={selectedAppointment ? (DENTISTS.find((d) => d.id === selectedAppointment.dentistId)?.name ?? '') : ''}
+          onStatusChange={(id, newStatus) => {
+            setAppointmentsList((prev) =>
+              prev.map((a) => (a.id === id ? { ...a, status: newStatus } : a))
+            );
+            setSelectedAppointment((prev) =>
+              prev && prev.id === id ? { ...prev, status: newStatus } : prev
+            );
+          }}
+          onMedicalRecordSaved={(id, data) => {
+            const service = data.treatments.join(', ');
+            const teeth = data.selectedTeeth;
+            setAppointmentsList((prev) =>
+              prev.map((a) => (a.id === id ? { ...a, service, teeth } : a))
+            );
+            setSelectedAppointment((prev) =>
+              prev && prev.id === id ? { ...prev, service, teeth } : prev
+            );
+          }}
+        />
       </header>
 
       <div className="flex border-b border-border mb-4 flex-shrink-0">
@@ -295,9 +432,9 @@ export default function AppointmentsPage() {
 
       {activeTab === 'calendar' && (
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-4 mb-4 flex-shrink-0">
-            <span className="text-sm text-muted-foreground">{totalCount} Total appointments</span>
-            <div className="flex justify-center items-center gap-3 flex-wrap">
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-4 mb-4 flex-shrink-0">
+            <span className="text-sm text-muted-foreground order-2 sm:order-1">{totalCount} Total appointments</span>
+            <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap order-1 sm:order-2">
               <Button variant="outline" size="sm" onClick={goToday} className={isToday ? 'bg-primary/10 border-primary/30' : ''}>
                 Today
               </Button>
@@ -336,7 +473,7 @@ export default function AppointmentsPage() {
                 <option value="Not seen">Not seen</option>
               </select>
             </div>
-            <Button variant="outline" size="sm" className="gap-2 justify-self-end">
+            <Button variant="outline" size="sm" className="gap-2 justify-self-end order-3">
               <Download className="w-4 h-4" />
               Download Calendar
             </Button>
@@ -396,13 +533,60 @@ export default function AppointmentsPage() {
                     {DENTISTS.map((d) => {
                       const cellList = gridBySlot[slotIdx]?.[d.id] ?? [];
                       const isNotAvailable = cellList.length === 1 && cellList[0] === 'not-available';
+                      const isUserMarkedNotAvailable = userNotAvailableSlots.has(`${d.id}-${slotIdx}`);
                       const apts = cellList.filter((c): c is Appointment => c !== 'not-available');
                       return (
-                        <td key={d.id} className="p-2 align-top border-l border-border first:border-l-0">
-                          {cellList.length === 0 && <div className="min-h-[60px]" />}
-                          {isNotAvailable && (
-                            <div className="min-h-[60px] rounded-lg bg-muted/50 flex items-center justify-center text-xs text-muted-foreground">
-                              Not Available
+                        <td key={d.id} className="relative p-2 align-top border-l border-border first:border-l-0 overflow-hidden min-h-[60px]">
+                          {(cellList.length === 0 || isNotAvailable) && (
+                            <div
+                              className={cn(
+                                'absolute inset-0 flex gap-0.5 rounded-lg',
+                                isNotAvailable && 'bg-red-500/5'
+                              )}
+                            >
+                              <button
+                                type="button"
+                                onClick={() => setNewAppointmentOpen(true)}
+                                className="group flex-1 min-w-0 rounded-l-lg flex items-center justify-center text-primary hover:bg-primary/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-inset transition-colors cursor-pointer"
+                                aria-label="Create new appointment"
+                              >
+                                <Plus className="h-4 w-4 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const key = `${d.id}-${slotIdx}`;
+                                  if (isNotAvailable) {
+                                    if (isUserMarkedNotAvailable) toggleSlotNotAvailable(d.id, slotIdx);
+                                    else setUserAvailableOverrides((prev) => new Set(prev).add(key));
+                                  } else {
+                                    toggleSlotNotAvailable(d.id, slotIdx);
+                                  }
+                                }}
+                                className={cn(
+                                  'group flex-1 min-w-0 rounded-r-lg flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-inset transition-colors cursor-pointer',
+                                  isNotAvailable
+                                    ? 'text-muted-foreground hover:bg-emerald-500/10 hover:text-emerald-600'
+                                    : 'text-red-400/80 hover:bg-red-500/10 hover:text-red-500'
+                                )}
+                                title={isNotAvailable ? 'Mark as available' : 'Mark as not available'}
+                                aria-label={isNotAvailable ? 'Mark as available' : 'Mark as not available'}
+                              >
+                                {isNotAvailable ? (
+                                  <CalendarCheck className="h-4 w-4 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                ) : (
+                                  <Ban className="h-4 w-4 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                )}
+                              </button>
+                              {isNotAvailable && (
+                                <div
+                                  className="absolute inset-0 flex flex-col items-center justify-center gap-1 pointer-events-none text-red-400/90"
+                                  aria-hidden
+                                >
+                                  <Ban className="h-5 w-5 shrink-0" />
+                                  <span className="text-[10px] font-medium hidden sm:block">Not available</span>
+                                </div>
+                              )}
                             </div>
                           )}
                           {apts.length > 0 && (
@@ -410,7 +594,16 @@ export default function AppointmentsPage() {
                               {apts.map((cell) => (
                                 <div
                                   key={cell.id}
-                                  className={`rounded-lg p-2 min-h-[60px] border ${CARD_STYLES[cell.status]}`}
+                                  role="button"
+                                  tabIndex={0}
+                                  onClick={() => setSelectedAppointment(cell)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                      e.preventDefault();
+                                      setSelectedAppointment(cell);
+                                    }
+                                  }}
+                                  className={`rounded-lg p-2.5 min-h-[72px] border cursor-pointer hover:ring-2 hover:ring-primary/20 transition-shadow shadow-sm ${CARD_STYLES[cell.status]}`}
                                 >
                                   <AppointmentCard cell={cell} />
                                 </div>
@@ -431,9 +624,9 @@ export default function AppointmentsPage() {
 
       {activeTab === 'log' && (
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-4 mb-4 flex-shrink-0">
-            <span className="text-sm text-muted-foreground">{logTotalCount} Total appointments</span>
-            <div className="flex justify-center items-center gap-3 flex-wrap">
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-4 mb-4 flex-shrink-0">
+            <span className="text-sm text-muted-foreground order-2 sm:order-1">{logTotalCount} Total appointments</span>
+            <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap order-1 sm:order-2">
               <select
                 className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
                 value={dentistFilter}
@@ -458,13 +651,13 @@ export default function AppointmentsPage() {
                 <option value="Not seen">Not seen</option>
               </select>
             </div>
-            <Button variant="outline" size="sm" className="gap-2 justify-self-end">
+            <Button variant="outline" size="sm" className="gap-2 justify-self-end order-3">
               <Download className="w-4 h-4" />
               Download
             </Button>
           </div>
           <div className="flex-1 min-h-0 overflow-auto border border-border rounded-xl bg-card overscroll-auto">
-            <table className="w-full border-collapse">
+            <table className="w-full border-collapse min-w-[600px]">
               <thead>
                 <tr className="border-b border-border bg-muted/30">
                   <th className="py-3 px-3 text-left text-xs font-medium text-muted-foreground">Date</th>

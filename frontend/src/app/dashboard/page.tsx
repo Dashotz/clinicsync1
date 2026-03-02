@@ -136,6 +136,11 @@ export default function DashboardPage() {
   const [treatmentPeriod, setTreatmentPeriod] = useState('This month');
   const [patientsOpen, setPatientsOpen] = useState(false);
   const [treatmentOpen, setTreatmentOpen] = useState(false);
+  const [chartsMounted, setChartsMounted] = useState(false);
+
+  useEffect(() => {
+    setChartsMounted(true);
+  }, []);
 
   const dateStr = useMemo(() => formatDate(), []);
 
@@ -249,7 +254,8 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="w-full min-w-0" style={{ height: cashflowChartHeight, minHeight: cashflowChartHeight }}>
-          <ResponsiveContainer width="100%" height={cashflowChartHeight} minWidth={0} minHeight={cashflowChartHeight}>
+          {chartsMounted ? (
+          <ResponsiveContainer width="100%" height={cashflowChartHeight} minWidth={180} minHeight={180}>
             <AreaChart data={cashflowChartData} margin={{ top: 8, right: 4, left: isMobile ? -8 : 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="cashflowGradient" x1="0" y1="0" x2="0" y2="1">
@@ -290,6 +296,9 @@ export default function DashboardPage() {
               />
             </AreaChart>
           </ResponsiveContainer>
+          ) : (
+            <div className="w-full h-full min-w-[180px] min-h-[180px]" aria-hidden />
+          )}
         </div>
       </section>
 
@@ -326,6 +335,7 @@ export default function DashboardPage() {
           </div>
           <div className="w-full min-w-0 flex-1 flex flex-col items-center justify-center min-h-[180px]">
             <div className="relative flex items-center justify-center w-[180px] h-[180px] sm:w-[220px] sm:h-[220px]">
+              {chartsMounted ? (
               <ResponsiveContainer width="100%" height="100%" minWidth={180} minHeight={180}>
                 <PieChart>
                   <Pie
@@ -372,6 +382,9 @@ export default function DashboardPage() {
                   />
                 </PieChart>
               </ResponsiveContainer>
+              ) : (
+                <div className="w-full h-full min-w-[180px] min-h-[180px]" aria-hidden />
+              )}
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <p className="text-2xl sm:text-3xl font-bold text-foreground">{patientsStats.total}</p>
                 <p className="text-sm text-muted-foreground mt-0.5">Patients</p>
@@ -420,7 +433,8 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="w-full min-w-0" style={{ height: barChartHeight, minHeight: barChartHeight }}>
-            <ResponsiveContainer width="100%" height={barChartHeight} minWidth={0} minHeight={barChartHeight}>
+            {chartsMounted ? (
+            <ResponsiveContainer width="100%" height={barChartHeight} minWidth={180} minHeight={180}>
               <BarChart
                 data={treatmentChartData}
                 layout="vertical"
@@ -442,6 +456,9 @@ export default function DashboardPage() {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+            ) : (
+              <div className="w-full h-full min-w-[180px] min-h-[180px]" aria-hidden />
+            )}
           </div>
         </section>
       </div>
