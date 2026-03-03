@@ -109,6 +109,12 @@ export default function AppointmentsPage() {
   const [dentistFilter, setDentistFilter] = useState('All Dentist');
   const [statusFilter, setStatusFilter] = useState('Status');
   const [newAppointmentOpen, setNewAppointmentOpen] = useState(false);
+  /** When opening from a calendar slot click, pre-fill date/time/dentist in the new-appointment modal */
+  const [newAppointmentPreselected, setNewAppointmentPreselected] = useState<{
+    date: string;
+    time: string;
+    dentistId: number;
+  } | null>(null);
   const [appointmentsList, setAppointmentsList] = useState<Appointment[]>(() => INITIAL_APPOINTMENTS);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   /** User-toggled "not available" slots: key = "dentistId-slotIndex" */
@@ -265,12 +271,22 @@ export default function AppointmentsPage() {
     <div className="h-full flex flex-col min-h-0 overflow-hidden p-4 sm:p-6 lg:p-8 bg-background">
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 flex-shrink-0">
         <h1 className="text-xl sm:text-2xl font-bold text-foreground">Appointment</h1>
-        <Button className="w-fit shrink-0" onClick={() => setNewAppointmentOpen(true)}>
+        <Button
+          className="w-fit shrink-0"
+          onClick={() => {
+            setNewAppointmentPreselected(null);
+            setNewAppointmentOpen(true);
+          }}
+        >
           + New Appointment
         </Button>
         <NewAppointmentModal
           open={newAppointmentOpen}
-          onOpenChange={setNewAppointmentOpen}
+          onOpenChange={(open) => {
+            if (!open) setNewAppointmentPreselected(null);
+            setNewAppointmentOpen(open);
+          }}
+          preselected={newAppointmentPreselected}
           onSave={(data: NewAppointmentSavedData) => {
             const { step1, step2 } = data;
             const start = parseTimeTo24(step1.time);
@@ -456,7 +472,17 @@ export default function AppointmentsPage() {
                             >
                               <button
                                 type="button"
-                                onClick={() => setNewAppointmentOpen(true)}
+                                onClick={() => {
+                                  const hour = SLOT_HOURS[slotIdx];
+                                  const timeStr =
+                                    hour === 12 ? '12:00 PM' : hour < 12 ? `${hour}:00 AM` : `${hour - 12}:00 PM`;
+                                  setNewAppointmentPreselected({
+                                    date: selectedDateStr,
+                                    time: timeStr,
+                                    dentistId: d.id,
+                                  });
+                                  setNewAppointmentOpen(true);
+                                }}
                                 className="group flex-1 min-w-0 rounded-l-lg flex items-center justify-center text-primary hover:bg-primary/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-inset transition-colors cursor-pointer"
                                 aria-label="Create new appointment"
                               >

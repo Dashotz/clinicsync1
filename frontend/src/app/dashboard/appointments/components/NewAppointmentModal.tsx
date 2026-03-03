@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Calendar, Clock, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -54,7 +54,7 @@ export type Step2Data = {
 const defaultStep1: Step1Data = {
   dentistId: String(DENTIST_OPTIONS[0].id),
   date: getTodayStr(),
-  time: '1:00 PM',
+  time: '9:00 AM',
   treatment: '',
   notes: '',
 };
@@ -72,12 +72,20 @@ export type NewAppointmentSavedData = {
   step2: Step2Data;
 };
 
+export type NewAppointmentPreselected = {
+  date: string;
+  time: string;
+  dentistId: number;
+};
+
 export type NewAppointmentModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
   /** Called when user saves the new appointment with form data (so parent can add to list) */
   onSave?: (data: NewAppointmentSavedData) => void;
+  /** When opening from a calendar slot click, pre-fill date, time, and dentist */
+  preselected?: NewAppointmentPreselected | null;
   /** Optional title (default: "New appointment") */
   title?: string;
   /** Optional class for the dialog content (e.g. max width, shadows) */
@@ -89,6 +97,7 @@ export function NewAppointmentModal({
   onOpenChange,
   onSuccess,
   onSave,
+  preselected,
   title = 'New appointment',
   contentClassName,
 }: NewAppointmentModalProps) {
@@ -98,9 +107,26 @@ export function NewAppointmentModal({
 
   const resetForm = () => {
     setStep(1);
-    setStep1(defaultStep1);
+    setStep1({ ...defaultStep1, date: getTodayStr(), time: '9:00 AM' });
     setStep2(defaultStep2);
   };
+
+  useEffect(() => {
+    if (open) {
+      if (preselected) {
+        setStep(1);
+        setStep1((s) => ({
+          ...s,
+          date: preselected.date,
+          time: preselected.time,
+          dentistId: String(preselected.dentistId),
+        }));
+        setStep2(defaultStep2);
+      } else {
+        resetForm();
+      }
+    }
+  }, [open, preselected]);
 
   const handleClose = (nextOpen: boolean) => {
     if (!nextOpen) resetForm();
