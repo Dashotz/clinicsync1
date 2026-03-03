@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { X, Stethoscope, User, Clock, MoreHorizontal, ClipboardList, Check, XCircle, Info } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { X, Stethoscope, User, Clock, MoreHorizontal, ClipboardList, Check, XCircle, Info, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
@@ -54,6 +54,8 @@ type Props = {
   onStatusChange?: (appointmentId: string, newStatus: AppointmentStatus) => void;
   /** Called when a medical record is saved; use to update appointment treatment in the list */
   onMedicalRecordSaved?: (appointmentId: string, data: { treatments: string[]; selectedTeeth: number[] }) => void;
+  /** Called when user chooses to delete the appointment; close modal and remove from list */
+  onDelete?: (appointmentId: string) => void;
 };
 
 export function AppointmentDetailsModal({
@@ -63,10 +65,26 @@ export function AppointmentDetailsModal({
   dentistName,
   onStatusChange,
   onMedicalRecordSaved,
+  onDelete,
 }: Props) {
   const [activeTab, setActiveTab] = useState<TabId>('general');
   const [addMedicalRecordOpen, setAddMedicalRecordOpen] = useState(false);
   const [treatmentSummaryOpen, setTreatmentSummaryOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) setMenuOpen(false);
+  }, [open]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [menuOpen]);
 
   if (!appointment) return null;
 
@@ -105,6 +123,12 @@ export function AppointmentDetailsModal({
   const handleSaveContinue = () => {
     handleComplete();
     setTreatmentSummaryOpen(false);
+  };
+
+  const handleDelete = () => {
+    setMenuOpen(false);
+    onDelete?.(appointment.id);
+    onOpenChange(false);
   };
 
   const tabs: { id: TabId; label: string }[] = [
@@ -155,9 +179,37 @@ export function AppointmentDetailsModal({
               {appointment.status}
             </span>
           </div>
-          <button type="button" className="p-1 rounded hover:bg-muted text-muted-foreground shrink-0" aria-label="More options">
-            <MoreHorizontal className="h-5 w-5" />
-          </button>
+          <div className="relative shrink-0" ref={menuRef}>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((o) => !o)}
+              className="p-1 rounded hover:bg-muted text-muted-foreground"
+              aria-label="More options"
+              aria-expanded={menuOpen}
+            >
+              <MoreHorizontal className="h-5 w-5" />
+            </button>
+            {menuOpen && (
+              <div
+                className="absolute right-0 top-full z-50 mt-1 min-w-[180px] rounded-lg border border-border bg-popover text-popover-foreground shadow-md py-1"
+                role="menu"
+              >
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    onDelete?.(appointment.id);
+                    onOpenChange(false);
+                    setMenuOpen(false);
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-destructive destructive-shine hover:bg-destructive/10 focus:bg-destructive/10 focus:outline-none"
+                >
+                  <Trash2 className="h-4 w-4 shrink-0" />
+                  Delete appointment
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">

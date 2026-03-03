@@ -74,6 +74,15 @@ code {
   }
 }
 
+/* Destructive text/icon that shines in dark mode (e.g. Delete appointment) */
+.dark .destructive-shine {
+  color: hsl(0, 78%, 58%);
+  text-shadow: 0 0 14px hsl(0, 78%, 58% / 0.55);
+}
+.dark .destructive-shine svg {
+  filter: drop-shadow(0 0 6px hsl(0, 78%, 58% / 0.6));
+}
+
 /* Smooth scroll: Lenis handles it when active; fallback for anchor links */
 html:not(.lenis) {
   scroll-behavior: smooth;

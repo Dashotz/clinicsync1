@@ -327,6 +327,10 @@ export default function AppointmentsPage() {
               prev && prev.id === id ? { ...prev, service, teeth } : prev
             );
           }}
+          onDelete={(id) => {
+            setAppointmentsList((prev) => prev.filter((a) => a.id !== id));
+            setSelectedAppointment(null);
+          }}
         />
       </header>
 
