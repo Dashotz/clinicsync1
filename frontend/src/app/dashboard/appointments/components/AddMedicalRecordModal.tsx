@@ -21,17 +21,8 @@ import {
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { ToothChart } from './ToothChart';
-import type { Appointment } from './AppointmentDetailsModal';
-
-const TREATMENT_OPTIONS = [
-  'Cleaning',
-  'General check-up',
-  'Root canal treatment',
-  'Filling',
-  'Extraction',
-  'Whitening',
-  'Consultation',
-];
+import type { Appointment } from '../lib/types';
+import { TREATMENT_OPTIONS } from '../lib/constants';
 
 const STEPS = [
   { id: 1, label: 'Treatments provided' },

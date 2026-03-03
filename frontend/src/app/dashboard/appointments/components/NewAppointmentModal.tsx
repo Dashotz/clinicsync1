@@ -23,23 +23,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CalendarPopover } from '@/components/ui/calendar-popover';
 import { cn } from '@/lib/utils';
+import { getTodayStr, formatDateDisplay } from '../lib/utils';
+import { DENTISTS, TREATMENT_OPTIONS } from '../lib/constants';
 
-// Manual data (no database)
-const DENTISTS = [
-  { id: 1, name: 'Dr. Ang Avatar', initials: 'AA' },
-  { id: 2, name: 'Dr. Jane Smith', initials: 'JS' },
-  { id: 3, name: 'Dr. John Doe', initials: 'JD' },
-];
-
-const TREATMENTS = [
-  'Cleaning',
-  'General check-up',
-  'Root canal treatment',
-  'Filling',
-  'Extraction',
-  'Whitening',
-  'Consultation',
-];
+const DENTIST_OPTIONS = DENTISTS;
+const TREATMENTS = [...TREATMENT_OPTIONS];
 
 const TIME_OPTIONS = [
   '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
@@ -63,22 +51,9 @@ export type Step2Data = {
   phone: string;
 };
 
-function getTodayDateStr() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
-/** Format YYYY-MM-DD for display (e.g. "Mar 2, 2026") */
-function formatDateDisplay(isoDate: string): string {
-  if (!isoDate) return '';
-  const d = new Date(isoDate + 'T12:00:00');
-  if (Number.isNaN(d.getTime())) return isoDate;
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
 const defaultStep1: Step1Data = {
-  dentistId: String(DENTISTS[0].id),
-  date: getTodayDateStr(),
+  dentistId: String(DENTIST_OPTIONS[0].id),
+  date: getTodayStr(),
   time: '1:00 PM',
   treatment: '',
   notes: '',
@@ -207,7 +182,7 @@ export function NewAppointmentModal({
                       <SelectValue placeholder="Select dentist" />
                     </SelectTrigger>
                     <SelectContent>
-                      {DENTISTS.map((d) => (
+                      {DENTIST_OPTIONS.map((d) => (
                         <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
                       ))}
                     </SelectContent>

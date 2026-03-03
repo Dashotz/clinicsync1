@@ -3,14 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { X, Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
-import type { Appointment } from './AppointmentDetailsModal';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import type { Appointment } from '../lib/types';
 
 /** Mock price per treatment name (would come from API/config) */
 const TREATMENT_PRICES: Record<string, number> = {

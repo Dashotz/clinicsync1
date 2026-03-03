@@ -3,29 +3,14 @@
 import React, { useState } from 'react';
 import { X, Stethoscope, User, Clock, MoreHorizontal, ClipboardList, Check, XCircle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import type { Appointment, AppointmentStatus } from '../lib/types';
+import { formatDateDisplay, formatTimeRangeLong } from '../lib/utils';
 import { AddMedicalRecordModal } from './AddMedicalRecordModal';
 import { TreatmentSummaryModal } from './TreatmentSummaryModal';
 
-export type AppointmentStatus = 'Scheduled' | 'Check-in' | 'Completed' | 'Not seen';
-
-export type Appointment = {
-  id: string;
-  dentistId: number;
-  patientName: string;
-  start: string;
-  end: string;
-  service: string;
-  status: AppointmentStatus;
-  date: string;
-  teeth?: number[];
-};
+export type { Appointment, AppointmentStatus };
 
 type PatientInfo = {
   fullName: string;
@@ -36,7 +21,6 @@ type PatientInfo = {
   address: string;
 };
 
-// Mock patient details for display in General Info
 const MOCK_PATIENT_INFO: Record<string, PatientInfo> = {
   'Ivary Lapina': {
     fullName: 'Ivary Lapina',
@@ -59,24 +43,6 @@ const MOCK_PATIENT_INFO: Record<string, PatientInfo> = {
   'Patient C': { fullName: 'Patient C', age: 22, gender: 'Female', phone: '-', email: '-', address: '-' },
   'Patient D': { fullName: 'Patient D', age: 40, gender: 'Male', phone: '-', email: '-', address: '-' },
 };
-
-function formatDate(iso: string): string {
-  return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-}
-
-function formatTimeRange(start: string, end: string): string {
-  const fmt = (t: string) => {
-    const [h, m] = t.split(':').map(Number);
-    const am = h < 12;
-    const h12 = h % 12 || 12;
-    return `${h12}:${String(m).padStart(2, '0')} ${am ? 'AM' : 'PM'}`;
-  };
-  return `${fmt(start)} - ${fmt(end)}`;
-}
 
 type TabId = 'general' | 'medical';
 
@@ -206,8 +172,8 @@ export function AppointmentDetailsModal({
           <div className="flex items-start gap-3">
             <Clock className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
             <div>
-              <p className="text-foreground">{formatDate(appointment.date)}</p>
-              <p className="text-muted-foreground">{formatTimeRange(appointment.start, appointment.end)}</p>
+              <p className="text-foreground">{formatDateDisplay(appointment.date)}</p>
+              <p className="text-muted-foreground">{formatTimeRangeLong(appointment.start, appointment.end)}</p>
             </div>
           </div>
         </div>

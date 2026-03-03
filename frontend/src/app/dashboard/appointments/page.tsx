@@ -1,47 +1,40 @@
 'use client';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import {
-  ChevronLeft,
-  ChevronRight,
-  Download,
-  Clock,
-  User,
-  Check,
-  XCircle,
-  Plus,
-  Ban,
-  CalendarCheck,
-} from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { ChevronLeft, ChevronRight, Download, Plus, Ban, CalendarCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
 import { cn } from '@/lib/utils';
-import { NewAppointmentModal, type NewAppointmentSavedData } from './NewAppointmentModal';
-import { AppointmentDetailsModal } from './AppointmentDetailsModal';
+import type { Appointment } from './lib/types';
+import {
+  DENTISTS,
+  TIME_SLOTS,
+  SLOT_HOURS,
+  NOT_AVAILABLE_SLOTS,
+  VALID_STATUSES,
+  STATUS_CONFIG,
+  CARD_STYLES,
+} from './lib/constants';
+import {
+  getTodayStr,
+  parseTimeTo24,
+  addOneHour,
+  parseTime,
+  formatTimeRange,
+  slotKey,
+} from './lib/utils';
+import type { NewAppointmentSavedData } from './components/NewAppointmentModal';
 
-const TIME_SLOTS = ['9 am', '10 am', '11 am', '12 pm', '1 pm', '2 pm', '3 pm', '4 pm'];
-const SLOT_HOURS = [9, 10, 11, 12, 13, 14, 15, 16];
+const NewAppointmentModal = dynamic(
+  () => import('./components/NewAppointmentModal').then((m) => ({ default: m.NewAppointmentModal })),
+  { ssr: false }
+);
 
-type AppointmentStatus = 'Scheduled' | 'Check-in' | 'Completed' | 'Not seen';
-
-type Appointment = {
-  id: string;
-  dentistId: number;
-  patientName: string;
-  start: string;
-  end: string;
-  service: string;
-  status: AppointmentStatus;
-  date: string; // YYYY-MM-DD
-  teeth?: number[];
-};
-
-const DENTISTS = [
-  { id: 1, name: 'Dr. Ang Avatar', initials: 'AA' },
-  { id: 2, name: 'Dr. Ang Avatar', initials: 'AA' },
-  { id: 3, name: 'Dr. Ang Avatar', initials: 'AA' },
-  { id: 4, name: 'Dr. Ang Avatar', initials: 'AA' },
-];
+const AppointmentDetailsModal = dynamic(
+  () => import('./components/AppointmentDetailsModal').then((m) => ({ default: m.AppointmentDetailsModal })),
+  { ssr: false }
+);
 
 // Mock appointments (Jan 6, 2026)
 const MOCK_APPOINTMENTS_JAN6: Appointment[] = [
@@ -52,30 +45,6 @@ const MOCK_APPOINTMENTS_JAN6: Appointment[] = [
   { id: '5', dentistId: 3, patientName: 'Ivary Lapina', start: '9:00', end: '10:00', service: 'Cleaning', status: 'Completed', date: '2026-01-06' },
   { id: '6', dentistId: 4, patientName: 'Ivary Lapina', start: '9:00', end: '10:00', service: 'Cleaning', status: 'Scheduled', date: '2026-01-06' },
 ];
-
-function getTodayStr(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
-/** Parse "9:00 AM" / "1:30 PM" to 24h "09:00" / "13:30" */
-function parseTimeTo24(timeStr: string): string {
-  const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-  if (!match) return '09:00';
-  let hour = Number(match[1]);
-  const min = match[2];
-  const pm = match[3].toUpperCase() === 'PM';
-  if (pm && hour !== 12) hour += 12;
-  if (!pm && hour === 12) hour = 0;
-  return `${String(hour).padStart(2, '0')}:${min}`;
-}
-
-/** Add 1 hour to "HH:MM" */
-function addOneHour(time24: string): string {
-  const [h, m] = time24.split(':').map(Number);
-  const next = (h + 1) % 24;
-  return `${String(next).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-}
 
 function getAllMockAppointments(): Appointment[] {
   const todayStr = getTodayStr();
@@ -91,62 +60,21 @@ function getAllMockAppointments(): Appointment[] {
 
 const INITIAL_APPOINTMENTS = getAllMockAppointments();
 
-const NOT_AVAILABLE_SLOTS: { dentistId: number; slotIndex: number }[] = [
-  { dentistId: 1, slotIndex: 2 },
-];
-
-const VALID_STATUSES: readonly AppointmentStatus[] = ['Scheduled', 'Check-in', 'Completed', 'Not seen'];
-
-const STATUS_CONFIG: Record<
-  AppointmentStatus,
-  { icon: typeof Clock; bg: string; iconCircle: string; statusText: string }
-> = {
-  Scheduled: {
-    icon: Clock,
-    bg: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200',
-    iconCircle: 'bg-amber-700 text-white dark:bg-amber-600',
-    statusText: 'text-amber-800 dark:text-amber-200',
-  },
-  'Check-in': {
-    icon: User,
-    bg: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200',
-    iconCircle: 'bg-emerald-600 text-white dark:bg-emerald-500',
-    statusText: 'text-emerald-800 dark:text-emerald-200',
-  },
-  Completed: {
-    icon: Check,
-    bg: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200',
-    iconCircle: 'bg-green-600 text-white dark:bg-green-500',
-    statusText: 'text-green-800 dark:text-green-200',
-  },
-  'Not seen': {
-    icon: XCircle,
-    bg: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200',
-    iconCircle: 'bg-red-600 text-white dark:bg-red-500',
-    statusText: 'text-red-800 dark:text-red-200',
-  },
-};
-
-function parseTime(t: string): number {
-  const [h, m] = t.split(':').map(Number);
-  return h + m / 60;
-}
-
-const CARD_STYLES: Record<AppointmentStatus, string> = {
-  Scheduled: 'bg-amber-50/90 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-800/50',
-  'Check-in': 'bg-emerald-50/90 border border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800/50',
-  Completed: 'bg-green-50/90 border border-green-200 dark:bg-green-900/20 dark:border-green-800/50',
-  'Not seen': 'bg-red-50/90 border border-red-200 dark:bg-red-900/20 dark:border-red-800/50',
-};
-
-function formatTimeRange(start: string, end: string): string {
-  const fmt = (t: string) => {
-    const [h, m] = t.split(':').map(Number);
-    const am = h < 12;
-    const h12 = h % 12 || 12;
-    return `${h12}:${String(m).padStart(2, '0')} ${am ? 'am' : 'pm'}`;
-  };
-  return `${fmt(start)} - ${fmt(end)}`;
+function filterByDateAndFilters(
+  list: Appointment[],
+  opts: { date?: string; dentistFilter: string; statusFilter: string }
+): Appointment[] {
+  let out = opts.date ? list.filter((a) => a.date === opts.date) : [...list];
+  if (opts.dentistFilter !== 'All Dentist') {
+    const dentistId = Number(opts.dentistFilter);
+    if (!Number.isNaN(dentistId) && DENTISTS.some((d) => d.id === dentistId)) {
+      out = out.filter((a) => a.dentistId === dentistId);
+    }
+  }
+  if (opts.statusFilter !== 'Status' && VALID_STATUSES.includes(opts.statusFilter as Appointment['status'])) {
+    out = out.filter((a) => a.status === opts.statusFilter);
+  }
+  return out;
 }
 
 function AppointmentCard({ cell }: { cell: Appointment }) {
@@ -200,37 +128,17 @@ export default function AppointmentsPage() {
     [selectedDate]
   );
 
-  const appointments = useMemo(() => {
-    let list = appointmentsList.filter((apt) => apt.date === selectedDateStr);
-    if (dentistFilter !== 'All Dentist') {
-      const dentistId = Number(dentistFilter);
-      const validIds = new Set(DENTISTS.map((d) => d.id));
-      if (!Number.isNaN(dentistId) && validIds.has(dentistId)) {
-        list = list.filter((apt) => apt.dentistId === dentistId);
-      }
-    }
-    if (statusFilter !== 'Status' && VALID_STATUSES.includes(statusFilter as AppointmentStatus)) {
-      list = list.filter((apt) => apt.status === statusFilter);
-    }
-    return list;
-  }, [appointmentsList, selectedDateStr, dentistFilter, statusFilter]);
+  const appointments = useMemo(
+    () => filterByDateAndFilters(appointmentsList, { date: selectedDateStr, dentistFilter, statusFilter }),
+    [appointmentsList, selectedDateStr, dentistFilter, statusFilter]
+  );
   const totalCount = appointments.length;
 
   const logAppointments = useMemo(() => {
-    let list = [...appointmentsList];
-    if (dentistFilter !== 'All Dentist') {
-      const dentistId = Number(dentistFilter);
-      const validIds = new Set(DENTISTS.map((d) => d.id));
-      if (!Number.isNaN(dentistId) && validIds.has(dentistId)) {
-        list = list.filter((apt) => apt.dentistId === dentistId);
-      }
-    }
-    if (statusFilter !== 'Status' && VALID_STATUSES.includes(statusFilter as AppointmentStatus)) {
-      list = list.filter((apt) => apt.status === statusFilter);
-    }
+    const list = filterByDateAndFilters(appointmentsList, { dentistFilter, statusFilter });
     return list.sort((a, b) => {
       const d = b.date.localeCompare(a.date);
-      return d !== 0 ? d : (parseTime(b.start) - parseTime(a.start));
+      return d !== 0 ? d : parseTime(b.start) - parseTime(a.start);
     });
   }, [appointmentsList, dentistFilter, statusFilter]);
   const logTotalCount = logAppointments.length;
@@ -306,7 +214,7 @@ export default function AppointmentsPage() {
       });
     });
     NOT_AVAILABLE_SLOTS.forEach(({ dentistId, slotIndex }) => {
-      const key = `${dentistId}-${slotIndex}`;
+      const key = slotKey(dentistId, slotIndex);
       if (grid[slotIndex] && !userAvailableOverrides.has(key)) grid[slotIndex][dentistId] = ['not-available'];
     });
     userNotAvailableSlots.forEach((key) => {
@@ -334,11 +242,12 @@ export default function AppointmentsPage() {
   }, [appointments, userNotAvailableSlots, userAvailableOverrides]);
 
   const toggleSlotNotAvailable = (dentistId: number, slotIndex: number) => {
-    const key = `${dentistId}-${slotIndex}`;
+    const key = slotKey(dentistId, slotIndex);
     setUserNotAvailableSlots((prev) => {
       const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else {
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
         next.add(key);
         setUserAvailableOverrides((o) => { const n = new Set(o); n.delete(key); return n; });
       }
@@ -431,7 +340,7 @@ export default function AppointmentsPage() {
       </div>
 
       {activeTab === 'calendar' && (
-        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden min-h-[420px]">
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-4 mb-4 flex-shrink-0">
             <span className="text-sm text-muted-foreground order-2 sm:order-1">{totalCount} Total appointments</span>
             <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap order-1 sm:order-2">
@@ -481,7 +390,8 @@ export default function AppointmentsPage() {
 
           <div
             ref={tableScrollRef}
-            className="flex-1 min-h-0 overflow-auto border border-border rounded-xl bg-card overscroll-auto"
+            className="flex-1 min-h-0 overflow-auto border border-border rounded-xl bg-card overscroll-auto min-h-[320px]"
+            style={{ contain: 'layout' }}
           >
             <table className="w-full border-collapse table-fixed" style={{ minWidth: 600 }}>
               <thead>
@@ -533,7 +443,7 @@ export default function AppointmentsPage() {
                     {DENTISTS.map((d) => {
                       const cellList = gridBySlot[slotIdx]?.[d.id] ?? [];
                       const isNotAvailable = cellList.length === 1 && cellList[0] === 'not-available';
-                      const isUserMarkedNotAvailable = userNotAvailableSlots.has(`${d.id}-${slotIdx}`);
+                      const isUserMarkedNotAvailable = userNotAvailableSlots.has(slotKey(d.id, slotIdx));
                       const apts = cellList.filter((c): c is Appointment => c !== 'not-available');
                       return (
                         <td key={d.id} className="relative p-2 align-top border-l border-border first:border-l-0 overflow-hidden min-h-[60px]">
@@ -555,7 +465,7 @@ export default function AppointmentsPage() {
                               <button
                                 type="button"
                                 onClick={() => {
-                                  const key = `${d.id}-${slotIdx}`;
+                                  const key = slotKey(d.id, slotIdx);
                                   if (isNotAvailable) {
                                     if (isUserMarkedNotAvailable) toggleSlotNotAvailable(d.id, slotIdx);
                                     else setUserAvailableOverrides((prev) => new Set(prev).add(key));
