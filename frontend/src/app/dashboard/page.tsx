@@ -137,12 +137,15 @@ export default function DashboardPage() {
   const [patientsOpen, setPatientsOpen] = useState(false);
   const [treatmentOpen, setTreatmentOpen] = useState(false);
   const [chartsMounted, setChartsMounted] = useState(false);
+  const [greeting, setGreeting] = useState('');
+  const [dateStr, setDateStr] = useState('');
 
   useEffect(() => {
     setChartsMounted(true);
+    const h = new Date().getHours();
+    setGreeting(h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening');
+    setDateStr(formatDate());
   }, []);
-
-  const dateStr = useMemo(() => formatDate(), []);
 
   const cashflowChartHeight = isMobile ? 200 : 256;
   const barChartHeight = isMobile ? 180 : 220;
@@ -206,13 +209,6 @@ export default function DashboardPage() {
       fill: TREATMENT_COLORS[i % TREATMENT_COLORS.length],
     }));
   }, [treatmentPeriod]);
-
-  const greeting = (() => {
-    const h = new Date().getHours();
-    if (h < 12) return 'Good morning';
-    if (h < 18) return 'Good afternoon';
-    return 'Good evening';
-  })();
 
   return (
     <div className="h-full flex flex-col overflow-auto p-4 sm:p-6 lg:p-8 bg-background">
