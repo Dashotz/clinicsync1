@@ -34,7 +34,7 @@ export function Dialog({ open, onOpenChange, children, className, fullHeight }: 
     <div
       className={cn(
         'fixed inset-0 z-50 flex pointer-events-auto',
-        fullHeight ? 'items-stretch p-0' : 'items-center justify-center p-4'
+        fullHeight ? 'items-stretch p-0' : 'items-center justify-center p-3 sm:p-4'
       )}
       role="dialog"
       aria-modal="true"

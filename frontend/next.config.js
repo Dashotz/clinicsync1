@@ -4,6 +4,8 @@ const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
   outputFileTracingRoot: path.join(__dirname),
+  // Avoid "segment-explorer-node.js#SegmentViewNode" / React Client Manifest errors in dev (Next.js 15 bundler bug)
+  devIndicators: false,
   async headers() {
     return [
       {

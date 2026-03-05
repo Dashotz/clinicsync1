@@ -107,11 +107,11 @@ export function TreatmentSummaryModal({
   const total = Math.max(0, subtotal - discountAmount + feeAmount);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} className="w-full max-w-md">
-      <DialogContent className="w-full max-h-[90vh] flex flex-col rounded-xl p-6 min-h-0">
-        <div className="shrink-0 flex items-start justify-between gap-4">
-          <DialogHeader className="p-0">
-            <DialogTitle>Treatment Summary</DialogTitle>
+    <Dialog open={open} onOpenChange={onOpenChange} className="w-full max-w-[calc(100vw-2rem)] sm:max-w-md">
+      <DialogContent className="w-full max-h-[85dvh] sm:max-h-[90vh] flex flex-col rounded-xl p-4 sm:p-6 min-h-0">
+        <div className="shrink-0 flex items-start justify-between gap-2 sm:gap-4">
+          <DialogHeader className="p-0 min-w-0">
+            <DialogTitle className="text-base sm:text-lg truncate pr-2">Treatment Summary</DialogTitle>
           </DialogHeader>
           <Button
             type="button"
@@ -119,15 +119,15 @@ export function TreatmentSummaryModal({
             size="icon"
             onClick={() => onOpenChange(false)}
             aria-label="Close"
-            className="h-8 w-8 shrink-0 -mr-2 -mt-1"
+            className="h-8 w-8 shrink-0 -mr-1 -mt-1 sm:-mr-2"
           >
             <X className="h-4 w-4" />
           </Button>
         </div>
 
-        <div className="shrink-0 flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm text-foreground mt-2">
-          <Info className="h-5 w-5 shrink-0 text-primary mt-0.5" />
-          <p>Review and confirm the final treatment prices before saving.</p>
+        <div className="shrink-0 flex items-start gap-2 sm:gap-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-foreground mt-2">
+          <Info className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 text-primary mt-0.5" />
+          <p className="min-w-0">Review and confirm the final treatment prices before saving.</p>
         </div>
 
         <div className="flex-1 min-h-0 overflow-y-auto mt-4 space-y-1">
@@ -141,12 +141,12 @@ export function TreatmentSummaryModal({
               >
                 <button
                   type="button"
-                  className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left hover:bg-muted/50 transition-colors"
+                  className="w-full flex items-center justify-between gap-2 px-3 py-2.5 sm:px-4 sm:py-3 text-left hover:bg-muted/50 transition-colors min-w-0"
                   onClick={() => toggleExpanded(name)}
                 >
-                  <span className="font-medium text-foreground">{name}</span>
-                  <span className="flex items-center gap-2">
-                    <span className="text-foreground">P{price.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+                  <span className="font-medium text-foreground truncate min-w-0">{name}</span>
+                  <span className="flex items-center gap-2 shrink-0">
+                    <span className="text-foreground text-sm sm:text-base">P{price.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
                     {isExpanded ? (
                       <ChevronUp className="h-4 w-4 text-muted-foreground" />
                     ) : (
@@ -155,7 +155,7 @@ export function TreatmentSummaryModal({
                   </span>
                 </button>
                 {isExpanded && (
-                  <div className="px-4 pb-3 pt-0 border-t border-border/50">
+                  <div className="px-3 sm:px-4 pb-3 pt-0 border-t border-border/50">
                     {teeth.length > 0 && (
                       <p className="text-xs text-muted-foreground mt-2 mb-2">Tooth involved ({teeth.length})</p>
                     )}
@@ -204,7 +204,7 @@ export function TreatmentSummaryModal({
                   className="h-7 text-xs"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div className="space-y-1">
                   <Label className="text-xs font-medium">Type</Label>
                   <Select
@@ -255,7 +255,7 @@ export function TreatmentSummaryModal({
           </div>
           {fee && (
             <div className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-2">
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div className="space-y-1">
                   <Label className="text-xs font-medium">Name of the fee</Label>
                   <Input
@@ -290,34 +290,34 @@ export function TreatmentSummaryModal({
         </div>
 
         <div className="shrink-0 mt-4 pt-4 border-t border-border space-y-1">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Subtotal</span>
-            <span className="text-foreground">P{subtotal.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+          <div className="flex justify-between text-xs sm:text-sm gap-2">
+            <span className="text-muted-foreground truncate min-w-0">Subtotal</span>
+            <span className="text-foreground shrink-0">P{subtotal.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
           </div>
           {discountAmount > 0 && discount && (
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">
+            <div className="flex justify-between text-xs sm:text-sm gap-2">
+              <span className="text-muted-foreground truncate min-w-0">
                 Discount{discount.title ? ` (${discount.title})` : ''}
               </span>
-              <span className="text-foreground">- ₱{discountAmount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+              <span className="text-foreground shrink-0">- ₱{discountAmount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
             </div>
           )}
           {feeAmount > 0 && fee && (
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">
+            <div className="flex justify-between text-xs sm:text-sm gap-2">
+              <span className="text-muted-foreground truncate min-w-0">
                 {fee.name ? fee.name : 'Additional Fee'}
               </span>
-              <span className="text-foreground">+ ₱{feeAmount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+              <span className="text-foreground shrink-0">+ ₱{feeAmount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
             </div>
           )}
-          <div className="flex justify-between text-base font-semibold">
+          <div className="flex justify-between text-sm sm:text-base font-semibold gap-2">
             <span className="text-foreground">Total</span>
-            <span className="text-foreground">P{total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+            <span className="text-foreground shrink-0">P{total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
           </div>
         </div>
 
-        <div className="shrink-0 mt-5 flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+        <div className="shrink-0 mt-4 sm:mt-5 flex flex-col-reverse sm:flex-row justify-end gap-2">
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
             Cancel
           </Button>
           <Button
@@ -326,6 +326,7 @@ export function TreatmentSummaryModal({
               onSaveContinue();
               toast.success('Visit completed. Treatment summary saved.');
             }}
+            className="w-full sm:w-auto"
           >
             Save & Continue
           </Button>

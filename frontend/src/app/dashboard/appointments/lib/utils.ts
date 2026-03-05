@@ -25,6 +25,25 @@ export function addOneHour(time24: string): string {
   return `${String(next).padStart(2, '0')}:${String(m ?? 0).padStart(2, '0')}`;
 }
 
+/** Convert "09:00" or "9:00" (24h) to "9:00 AM" for time dropdowns */
+export function time24ToDisplay(timeStr: string): string {
+  const [h, m] = timeStr.split(':').map(Number);
+  const hour = h ?? 0;
+  const min = String(m ?? 0).padStart(2, '0');
+  if (hour === 0) return `12:${min} AM`;
+  if (hour < 12) return `${hour}:${min} AM`;
+  if (hour === 12) return `12:${min} PM`;
+  return `${hour - 12}:${min} PM`;
+}
+
+/** Normalize "9:00" to "09:00" for 24h comparison */
+export function toTime24(timeStr: string): string {
+  const [h, m] = timeStr.split(':').map(Number);
+  const hour = h ?? 0;
+  const min = String(m ?? 0).padStart(2, '0');
+  return `${String(hour).padStart(2, '0')}:${min}`;
+}
+
 /** "HH:MM" to decimal hours for comparison */
 export function parseTime(t: string): number {
   const [h, m] = t.split(':').map(Number);

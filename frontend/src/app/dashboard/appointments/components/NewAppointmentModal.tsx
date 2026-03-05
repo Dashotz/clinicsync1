@@ -153,33 +153,33 @@ export function NewAppointmentModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className={cn('w-[calc(100%-2rem)] max-w-lg mx-auto', contentClassName)}>
-        <div className="flex items-start justify-between gap-4">
-          <DialogHeader>
-            <DialogTitle>{title}</DialogTitle>
+      <DialogContent className={cn('w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] max-w-lg mx-auto max-h-[90dvh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6', contentClassName)}>
+        <div className="flex items-start justify-between gap-2 sm:gap-4">
+          <DialogHeader className="min-w-0">
+            <DialogTitle className="text-base sm:text-lg">{title}</DialogTitle>
             {/* Step indicator */}
-            <div className="flex items-center gap-2 pt-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 pt-2 flex-wrap">
               <div
                 className={cn(
-                  'flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium',
+                  'flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full text-xs font-medium shrink-0',
                   step >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
                 )}
               >
                 {step > 1 ? '✓' : '1'}
               </div>
-              <span className={cn('text-sm', step >= 1 ? 'text-foreground font-medium' : 'text-muted-foreground')}>
+              <span className={cn('text-xs sm:text-sm', step >= 1 ? 'text-foreground font-medium' : 'text-muted-foreground')}>
                 Treatment & Dentist
               </span>
-              <div className="h-px w-4 bg-border" />
+              <div className="h-px w-3 sm:w-4 bg-border shrink-0" />
               <div
                 className={cn(
-                  'flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium',
+                  'flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full text-xs font-medium shrink-0',
                   step >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
                 )}
               >
                 2
               </div>
-              <span className={cn('text-sm', step >= 2 ? 'text-foreground font-medium' : 'text-muted-foreground')}>
+              <span className={cn('text-xs sm:text-sm', step >= 2 ? 'text-foreground font-medium' : 'text-muted-foreground')}>
                 Basic Information
               </span>
             </div>
@@ -196,11 +196,11 @@ export function NewAppointmentModal({
           </Button>
         </div>
 
-        <div className="mt-4 rounded-lg border border-border/60 bg-muted/30 px-4 py-4 space-y-4">
+        <div className="mt-3 sm:mt-4 rounded-lg border border-border/60 bg-muted/30 px-3 sm:px-4 py-3 sm:py-4 space-y-3 sm:space-y-4">
           {step === 1 && (
             <>
               <div className={fieldClass}>
-                <Label htmlFor="dentist">Assigned Dentist</Label>
+                <Label htmlFor="dentist" className="text-xs sm:text-sm">Assigned Dentist</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none z-10" />
                   <Select value={step1.dentistId} onValueChange={(v) => setStep1((s) => ({ ...s, dentistId: v }))}>
@@ -218,9 +218,9 @@ export function NewAppointmentModal({
                   Appointment times are based on the dentist&apos;s schedule.
                 </p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className={fieldClass}>
-                  <Label htmlFor="appointment-date">Appointment Date</Label>
+                  <Label htmlFor="appointment-date" className="text-xs sm:text-sm">Appointment Date</Label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none z-10" />
                     <CalendarPopover
@@ -237,7 +237,7 @@ export function NewAppointmentModal({
                   </div>
                 </div>
                 <div className={fieldClass}>
-                  <Label htmlFor="appointment-time">Appointment Time</Label>
+                  <Label htmlFor="appointment-time" className="text-xs sm:text-sm">Appointment Time</Label>
                   <div className="relative">
                     <Clock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none z-10" />
                     <Select value={step1.time} onValueChange={(v) => setStep1((s) => ({ ...s, time: v }))}>
@@ -267,7 +267,7 @@ export function NewAppointmentModal({
                 </Select>
               </div>
               <div className={fieldClass}>
-                <Label htmlFor="notes">Notes (Optional)</Label>
+                <Label htmlFor="notes" className="text-xs sm:text-sm">Notes (Optional)</Label>
                 <Textarea
                   id="notes"
                   value={step1.notes}
@@ -283,7 +283,7 @@ export function NewAppointmentModal({
           {step === 2 && (
             <>
               <div className={fieldClass}>
-                <Label htmlFor="patient-name">Patient name</Label>
+                <Label htmlFor="patient-name" className="text-xs sm:text-sm">Patient name</Label>
                 <Input
                   id="patient-name"
                   type="text"
@@ -294,7 +294,7 @@ export function NewAppointmentModal({
                 />
               </div>
               <div className={fieldClass}>
-                <Label htmlFor="age">Age</Label>
+                <Label htmlFor="age" className="text-xs sm:text-sm">Age</Label>
                 <Input
                   id="age"
                   type="text"
@@ -306,11 +306,11 @@ export function NewAppointmentModal({
                 />
               </div>
               <div className={fieldClass}>
-                <Label>Gender</Label>
+                <Label className="text-xs sm:text-sm">Gender</Label>
                 <RadioGroup
                   value={step2.gender || undefined}
                   onValueChange={(v) => setStep2((s) => ({ ...s, gender: (v || '') as Step2Data['gender'] }))}
-                  className="flex gap-4 pt-1"
+                  className="flex gap-3 sm:gap-4 pt-1"
                 >
                   <div className="flex items-center gap-2">
                     <RadioGroupItem value="Male" id="gender-male" />
@@ -334,7 +334,7 @@ export function NewAppointmentModal({
                 />
               </div>
               <div className={fieldClass}>
-                <Label htmlFor="phone">Phone number</Label>
+                <Label htmlFor="phone" className="text-xs sm:text-sm">Phone number</Label>
                 <Input
                   id="phone"
                   type="tel"
@@ -348,17 +348,17 @@ export function NewAppointmentModal({
           )}
         </div>
 
-        <DialogFooter className="mt-6 flex flex-wrap items-center justify-between sm:justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => handleClose(false)}>
+        <DialogFooter className="mt-4 sm:mt-6 flex flex-col-reverse sm:flex-row flex-wrap items-stretch sm:items-center justify-between sm:justify-end gap-2">
+          <Button type="button" variant="outline" onClick={() => handleClose(false)} className="w-full sm:w-auto">
             Cancel
           </Button>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             {step === 2 && (
-              <Button type="button" variant="outline" onClick={handlePrevious}>
+              <Button type="button" variant="outline" onClick={handlePrevious} className="w-full sm:w-auto">
                 Previous
               </Button>
             )}
-            <Button type="button" onClick={handleContinue}>
+            <Button type="button" onClick={handleContinue} className="w-full sm:w-auto">
               {step === 1 ? 'Continue' : 'Create appointment'}
             </Button>
           </div>

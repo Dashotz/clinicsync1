@@ -148,6 +148,21 @@ export type MedicalRecordSavedData = {
   selectedTeeth: number[];
 };
 
+type ToothDetailPopoverProps = {
+  toothNumber: number;
+  toothName: string;
+  condition: string;
+  treatment: string;
+  notes: string;
+  treatmentStartedAt?: string;
+  treatmentOptions: string[];
+  onConditionChange: (v: string) => void;
+  onTreatmentChange: (v: string) => void;
+  onNotesChange: (v: string) => void;
+  onCancel: () => void;
+  onSave: () => void;
+};
+
 function ToothDetailPopover({
   toothNumber,
   toothName,
@@ -161,21 +176,7 @@ function ToothDetailPopover({
   onNotesChange,
   onCancel,
   onSave,
-  onEdit,
-}: {
-  toothNumber: number;
-  toothName: string;
-  condition: string;
-  treatment: string;
-  notes: string;
-  treatmentStartedAt?: string;
-  treatmentOptions: string[];
-  onConditionChange: (v: string) => void;
-  onTreatmentChange: (v: string) => void;
-  onNotesChange: (v: string) => void;
-  onCancel: () => void;
-  onSave: () => void;
-}) {
+}: ToothDetailPopoverProps) {
   /** Only show summary when this tooth was saved before (has a start date). Prevents flipping to summary when user selects a condition, selects a treatment, or types in notes. */
   const wasSavedBefore = !!treatmentStartedAt;
   const [isEditing, setIsEditing] = useState(false);
@@ -188,14 +189,14 @@ function ToothDetailPopover({
   return (
     <div
       className={cn(
-        'absolute top-1/2 z-50 w-[280px] -translate-y-1/2 rounded-lg border border-border bg-popover text-popover-foreground shadow-lg p-3',
-        popupSide === 'left' ? 'left-2' : 'right-2'
+        'absolute top-1/2 z-50 w-[260px] max-w-[calc(100vw-2rem)] sm:w-[280px] -translate-y-1/2 rounded-lg border border-border bg-popover text-popover-foreground shadow-lg p-2.5 sm:p-3',
+        popupSide === 'left' ? 'left-1 sm:left-2' : 'right-1 sm:right-2'
       )}
       role="dialog"
       aria-labelledby="tooth-popup-title"
     >
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <h4 id="tooth-popup-title" className="font-semibold text-sm text-foreground">
+      <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
+        <h4 id="tooth-popup-title" className="font-semibold text-xs sm:text-sm text-foreground truncate">
           {toothName}
         </h4>
         <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
@@ -376,13 +377,13 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
       open={open}
       onOpenChange={onOpenChange}
       className={cn(
-        'w-[calc(100%-2rem)] mx-auto',
+        'w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] mx-auto',
         showHistoryColumn ? 'max-w-4xl xl:max-w-5xl' : 'max-w-xl sm:max-w-2xl lg:max-w-3xl xl:max-w-3xl'
       )}
     >
-      <DialogContent className={cn('w-full max-h-[90vh] overflow-y-auto flex flex-col', showHistoryColumn && 'flex-row gap-0')}>
+      <DialogContent className={cn('w-full max-h-[85dvh] sm:max-h-[90vh] overflow-y-auto flex flex-col p-4 sm:p-6', showHistoryColumn && 'flex-row gap-0')}>
         {showHistoryColumn && (
-          <aside className="w-[280px] sm:w-[320px] shrink-0 flex flex-col min-h-0 border-r border-border pr-4">
+          <aside className="hidden lg:flex w-[260px] xl:w-[320px] shrink-0 flex-col min-h-0 border-r border-border pr-4">
             {toothPopupTooth !== null && TEETH_WITH_HISTORY[toothPopupTooth] && (MOCK_TOOTH_HISTORY[toothPopupTooth]?.length ?? 0) > 0 ? (
               <ToothHistoryPanel
                 toothNumber={toothPopupTooth}
@@ -397,10 +398,10 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
             )}
           </aside>
         )}
-        <div className={cn('flex flex-col min-w-0', showHistoryColumn && 'flex-1 pl-4')}>
-        <div className="flex items-start justify-between gap-4">
-          <DialogHeader className="p-0">
-            <DialogTitle>Add Medical Record</DialogTitle>
+        <div className={cn('flex flex-col min-w-0', showHistoryColumn && 'flex-1 lg:pl-4')}>
+        <div className="flex items-start justify-between gap-2 sm:gap-4">
+          <DialogHeader className="p-0 min-w-0">
+            <DialogTitle className="text-base sm:text-lg">Add Medical Record</DialogTitle>
           </DialogHeader>
           <Button
             type="button"
@@ -408,19 +409,19 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
             size="icon"
             onClick={() => onOpenChange(false)}
             aria-label="Close"
-            className="h-8 w-8 shrink-0 -mr-2 -mt-1"
+            className="h-8 w-8 shrink-0 -mr-1 -mt-1 sm:-mr-2"
           >
             <X className="h-4 w-4" />
           </Button>
         </div>
 
         {/* Step indicator - 3 columns, number above text */}
-        <div className="grid grid-cols-3 gap-4 pt-2 mt-2">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-2 mt-2">
           {STEPS.map((s) => (
-            <div key={s.id} className="flex flex-col items-center gap-1.5 text-center">
+            <div key={s.id} className="flex flex-col items-center gap-1 sm:gap-1.5 text-center">
               <div
                 className={cn(
-                  'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium',
+                  'flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium',
                   step > s.id ? 'bg-primary text-primary-foreground' : step === s.id ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
                 )}
               >
@@ -428,7 +429,7 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
               </div>
               <span
                 className={cn(
-                  'text-sm',
+                  'text-[10px] sm:text-sm',
                   step >= s.id ? 'text-foreground font-medium' : 'text-muted-foreground'
                 )}
               >
@@ -440,14 +441,14 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
 
         {step === 1 && (
           <>
-            <h3 className="text-base font-semibold text-foreground mt-6">Treatments provided</h3>
-            <p className="text-sm text-muted-foreground mt-1">
+            <h3 className="text-sm sm:text-base font-semibold text-foreground mt-4 sm:mt-6">Treatments provided</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
               Confirm or update the treatments provided during this visit.
             </p>
 
-            <div className="space-y-2 mt-4">
-              <Label>Treatment</Label>
-              <div className="flex flex-wrap gap-2 min-h-[36px] rounded-md border border-input bg-transparent px-3 py-2 text-sm">
+            <div className="space-y-2 mt-3 sm:mt-4">
+              <Label className="text-xs sm:text-sm">Treatment</Label>
+              <div className="flex flex-wrap gap-2 min-h-[36px] rounded-md border border-input bg-transparent px-2.5 sm:px-3 py-2 text-xs sm:text-sm">
                 {treatments.map((t) => (
                   <span
                     key={t}
@@ -465,7 +466,7 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
                   </span>
                 ))}
                 <Select value={addTreatmentValue} onValueChange={(v) => addTreatment(v)}>
-                  <SelectTrigger className="w-[140px] h-7 border-0 shadow-none focus:ring-0 p-0 gap-1">
+                  <SelectTrigger className="w-[120px] sm:w-[140px] h-7 border-0 shadow-none focus:ring-0 p-0 gap-1 text-xs sm:text-sm">
                     <SelectValue placeholder="Add treatment" />
                   </SelectTrigger>
                   <SelectContent>
@@ -488,44 +489,44 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
               </p>
             </div>
 
-            <div className="space-y-2 mt-4">
-              <Label>Notes (Optional)</Label>
+            <div className="space-y-2 mt-3 sm:mt-4">
+              <Label className="text-xs sm:text-sm">Notes (Optional)</Label>
               <Textarea
                 placeholder="Add note or remarks about this visit"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
-                className="resize-none"
+                className="resize-none text-xs sm:text-sm"
               />
             </div>
           </>
         )}
 
         {step === 2 && (
-          <div className="mt-6 flex flex-col min-h-0 flex-1">
-            <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm text-foreground mb-4">
-              <Info className="h-5 w-5 shrink-0 text-primary mt-0.5" />
-              <p>Patient medical data is based on previous visits. Review and update it as needed for today.</p>
+          <div className="mt-4 sm:mt-6 flex flex-col min-h-0 flex-1">
+            <div className="flex items-start gap-2 sm:gap-3 rounded-lg border border-primary/20 bg-primary/5 px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-foreground mb-3 sm:mb-4">
+              <Info className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 text-primary mt-0.5" />
+              <p className="min-w-0">Patient medical data is based on previous visits. Review and update it as needed for today.</p>
             </div>
-            <h3 className="text-base font-semibold text-foreground text-center">Tooth involvement</h3>
-            <p className="text-sm text-muted-foreground mt-2 text-center">
+            <h3 className="text-sm sm:text-base font-semibold text-foreground text-center">Tooth involvement</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 sm:mt-2 text-center">
               Assign teeth to each treatment, if applicable.
             </p>
             {treatments.length > 0 && (
-              <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+              <div className="mt-2 sm:mt-3 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
                 {treatments.map((t) => (
                   <span
                     key={t}
-                    className="inline-flex rounded-lg border border-border bg-muted/80 px-4 py-2 text-sm font-medium text-foreground"
+                    className="inline-flex rounded-lg border border-border bg-muted/80 px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-foreground"
                   >
                     {t}
                   </span>
                 ))}
               </div>
             )}
-            <div className="mt-4 w-full min-w-0 flex min-h-[320px]">
+            <div className="mt-3 sm:mt-4 w-full min-w-0 flex min-h-[260px] sm:min-h-[320px]">
               {!HAS_TREATMENT_HISTORY && toothPopupTooth !== null && TEETH_WITH_HISTORY[toothPopupTooth] && (MOCK_TOOTH_HISTORY[toothPopupTooth]?.length ?? 0) > 0 && (
-                <div className="w-[280px] sm:w-[320px] shrink-0 flex flex-col min-h-0 mr-4">
+                <div className="hidden sm:flex w-[260px] lg:w-[320px] shrink-0 flex-col min-h-0 mr-4">
                   <ToothHistoryPanel
                     toothNumber={toothPopupTooth}
                     toothName={TOOTH_NAMES[toothPopupTooth] ?? `Tooth ${toothPopupTooth}`}
@@ -533,7 +534,7 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
                   />
                 </div>
               )}
-              <div className="flex-1 min-w-0 overflow-hidden rounded-lg border border-border bg-card flex flex-col min-h-[280px] relative" style={{ aspectRatio: '450/700' }}>
+              <div className="flex-1 min-w-0 overflow-hidden rounded-lg border border-border bg-card flex flex-col min-h-[220px] sm:min-h-[280px] relative" style={{ aspectRatio: '450/700' }}>
                 <ToothChart
                   selectedTeeth={selectedTeeth}
                   onSelectionChange={setSelectedTeeth}
@@ -590,17 +591,15 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
         )}
 
         {step === 3 && (
-          <div className="mt-6 space-y-4">
+          <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
             {/* Info banner */}
-            <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm text-foreground">
-              <Info className="h-5 w-5 shrink-0 text-primary mt-0.5" />
-              <p>
-                Patient medical data is based on previous visits. Review and update it as needed for today.
-              </p>
+            <div className="flex items-start gap-2 sm:gap-3 rounded-lg border border-primary/20 bg-primary/5 px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-foreground">
+              <Info className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 text-primary mt-0.5" />
+              <p className="min-w-0">Patient medical data is based on previous visits. Review and update it as needed for today.</p>
             </div>
 
-            <h3 className="text-base font-semibold text-foreground">Review</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="text-sm sm:text-base font-semibold text-foreground">Review</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Review the treatments and confirm their status for this visit. Mark a treatment as{' '}
               <span className="font-medium text-orange-600 dark:text-orange-400">Still Pending</span> if additional
               visits are needed to complete it.
@@ -608,8 +607,8 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
 
             {/* New treatments provided */}
             {treatments.length > 0 && (
-              <div className="space-y-3">
-                <h4 className="text-sm font-medium text-foreground">
+              <div className="space-y-2 sm:space-y-3">
+                <h4 className="text-xs sm:text-sm font-medium text-foreground">
                   New treatments provided ({treatments.length})
                 </h4>
                 <div className="space-y-2">
@@ -618,12 +617,12 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
                     return (
                       <div
                         key={t}
-                        className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3"
+                        className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-2 sm:gap-3 rounded-lg border border-border bg-card px-3 sm:px-4 py-2.5 sm:py-3"
                       >
                         <div className="flex flex-wrap items-center gap-2 min-w-0">
-                          <span className="font-medium text-foreground">{t}</span>
+                          <span className="font-medium text-foreground text-sm">{t}</span>
                           {selectedTeeth.length > 0 && (
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] sm:text-xs font-medium text-primary">
                               <span className="text-muted-foreground" aria-hidden>#</span>
                               {selectedTeeth.join(', ')}
                             </span>
@@ -635,12 +634,12 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
                             size="sm"
                             variant={status === 'done' ? 'default' : 'outline'}
                             className={cn(
-                              'gap-1.5',
+                              'gap-1 h-8 text-xs sm:text-sm',
                               status === 'done' && 'bg-green-600 hover:bg-green-700 text-white border-0'
                             )}
                             onClick={() => setNewTreatmentStatus((prev) => ({ ...prev, [t]: 'done' }))}
                           >
-                            <Check className="h-4 w-4" />
+                            <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             Done
                           </Button>
                           <Button
@@ -648,12 +647,12 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
                             size="sm"
                             variant={status === 'still_pending' ? 'default' : 'outline'}
                             className={cn(
-                              'gap-1.5',
+                              'gap-1 h-8 text-xs sm:text-sm',
                               status === 'still_pending' && 'bg-orange-500 hover:bg-orange-600 text-white border-0'
                             )}
                             onClick={() => setNewTreatmentStatus((prev) => ({ ...prev, [t]: 'still_pending' }))}
                           >
-                            <Hourglass className="h-4 w-4" />
+                            <Hourglass className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             Still Pending
                           </Button>
                         </div>
@@ -665,8 +664,8 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
             )}
 
             {/* Pending treatments (from previous visits) */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-medium text-foreground">
+            <div className="space-y-2 sm:space-y-3">
+              <h4 className="text-xs sm:text-sm font-medium text-foreground">
                 Pending treatments ({MOCK_PENDING_TREATMENTS.length})
               </h4>
               <div className="space-y-2">
@@ -675,17 +674,17 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
                   return (
                     <div
                       key={item.id}
-                      className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3"
+                      className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-2 sm:gap-3 rounded-lg border border-border bg-card px-3 sm:px-4 py-2.5 sm:py-3"
                     >
                       <div className="flex flex-col gap-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-medium text-foreground">{item.name}</span>
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                          <span className="font-medium text-foreground text-sm">{item.name}</span>
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] sm:text-xs font-medium text-primary">
                             <span className="text-muted-foreground" aria-hidden>#</span>
                             {item.tooth}
                           </span>
                         </div>
-                        <p className="text-xs text-muted-foreground">Started at {item.startedAt}</p>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">Started at {item.startedAt}</p>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
                         <Button
@@ -693,12 +692,12 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
                           size="sm"
                           variant={status === 'done' ? 'default' : 'outline'}
                           className={cn(
-                            'gap-1.5',
+                            'gap-1 h-8 text-xs sm:text-sm',
                             status === 'done' && 'bg-green-600 hover:bg-green-700 text-white border-0'
                           )}
                           onClick={() => setPendingTreatmentStatus((prev) => ({ ...prev, [item.id]: 'done' }))}
                         >
-                          <Check className="h-4 w-4" />
+                          <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                           Done
                         </Button>
                         <Button
@@ -706,12 +705,12 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
                           size="sm"
                           variant={status === 'still_pending' ? 'default' : 'outline'}
                           className={cn(
-                            'gap-1.5',
+                            'gap-1 h-8 text-xs sm:text-sm',
                             status === 'still_pending' && 'bg-orange-500 hover:bg-orange-600 text-white border-0'
                           )}
                           onClick={() => setPendingTreatmentStatus((prev) => ({ ...prev, [item.id]: 'still_pending' }))}
                         >
-                          <Hourglass className="h-4 w-4" />
+                          <Hourglass className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                           Still Pending
                         </Button>
                       </div>
@@ -723,16 +722,16 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
           </div>
         )}
 
-        <div className="mt-8 flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+        <div className="mt-6 sm:mt-8 flex flex-col-reverse sm:flex-row justify-end gap-2">
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
             Cancel
           </Button>
           {step > 1 && (
-            <Button type="button" variant="outline" onClick={() => setStep((s) => s - 1)}>
+            <Button type="button" variant="outline" onClick={() => setStep((s) => s - 1)} className="w-full sm:w-auto">
               Previous
             </Button>
           )}
-          <Button type="button" onClick={handleContinue}>
+          <Button type="button" onClick={handleContinue} className="w-full sm:w-auto">
             {step === 3 ? 'Save Record' : 'Continue'}
           </Button>
         </div>
