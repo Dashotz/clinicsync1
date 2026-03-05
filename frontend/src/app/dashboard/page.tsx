@@ -147,6 +147,7 @@ export default function DashboardPage() {
   const cashflowChartHeight = isMobile ? 200 : 256;
   const barChartHeight = isMobile ? 180 : 220;
   const barChartYAxisWidth = isMobile ? 88 : 120;
+  const pieChartSize = isMobile ? 180 : 220;
 
   // Cashflow: filter data and total by range
   const { cashflowChartData, cashflowTotal, cashflowDataKey, cashflowLabelKey, cashflowYMax } = useMemo(() => {
@@ -334,9 +335,9 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="w-full min-w-0 flex-1 flex flex-col items-center justify-center min-h-[180px]">
-            <div className="relative flex items-center justify-center w-[180px] h-[180px] sm:w-[220px] sm:h-[220px]">
+            <div className="relative flex items-center justify-center" style={{ width: pieChartSize, height: pieChartSize }}>
               {chartsMounted ? (
-              <ResponsiveContainer width="100%" height="100%" minWidth={180} minHeight={180}>
+              <ResponsiveContainer width={pieChartSize} height={pieChartSize} minWidth={180} minHeight={180}>
                 <PieChart>
                   <Pie
                     data={patientsDonutData}
