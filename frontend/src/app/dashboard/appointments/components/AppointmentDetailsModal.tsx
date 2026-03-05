@@ -117,6 +117,23 @@ export function AppointmentDetailsModal({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [menuOpen]);
 
+  // These memos must live above the early return so hook call count is always consistent.
+  const tabs = useMemo<{ id: TabId; label: string }[]>(() => [
+    { id: 'general', label: 'General Info' },
+    { id: 'medical', label: 'Medical History' },
+    ...(appointment?.status === 'Completed' ? [{ id: 'more' as const, label: 'More Info' }] : []),
+  ], [appointment?.status]);
+
+  const medicalToothStatus = useMemo<Partial<Record<number, ToothStatus>>>(() => {
+    if (!appointment) return {};
+    const fromHistory = MOCK_PATIENT_TOOTH_HISTORY[appointment.patientName] ?? {};
+    const fromVisit = (appointment.teeth ?? []).reduce<Partial<Record<number, ToothStatus>>>(
+      (acc, t) => ({ ...acc, [t]: fromHistory[t] ?? 'pending' }),
+      {}
+    );
+    return { ...fromHistory, ...fromVisit };
+  }, [appointment?.patientName, appointment?.teeth]);
+
   if (!appointment) return null;
 
   const patientInfo = MOCK_PATIENT_INFO[appointment.patientName] ?? {
@@ -156,12 +173,6 @@ export function AppointmentDetailsModal({
     setTreatmentSummaryOpen(false);
   };
 
-  const tabs = useMemo<{ id: TabId; label: string }[]>(() => [
-    { id: 'general', label: 'General Info' },
-    { id: 'medical', label: 'Medical History' },
-    ...(appointment.status === 'Completed' ? [{ id: 'more' as const, label: 'More Info' }] : []),
-  ], [appointment.status]);
-
   /** Mock billing for completed appointments (would come from API) */
   const billNumber = '23211';
   const billTotal = 2300;
@@ -180,15 +191,6 @@ export function AppointmentDetailsModal({
 
   const statusStyle = STATUS_CONFIG[appointment.status];
   const StatusIcon = statusStyle.icon;
-
-  const medicalToothStatus = useMemo<Partial<Record<number, ToothStatus>>>(() => {
-    const fromHistory = MOCK_PATIENT_TOOTH_HISTORY[appointment.patientName] ?? {};
-    const fromVisit = (appointment.teeth ?? []).reduce<Partial<Record<number, ToothStatus>>>(
-      (acc, t) => ({ ...acc, [t]: fromHistory[t] ?? 'pending' }),
-      {}
-    );
-    return { ...fromHistory, ...fromVisit };
-  }, [appointment.patientName, appointment.teeth]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange} fullHeight className="w-full flex justify-end">
