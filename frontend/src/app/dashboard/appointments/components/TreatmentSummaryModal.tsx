@@ -2,9 +2,30 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import type { Appointment } from '../lib/types';
+
+type DiscountEntry = {
+  title: string;
+  type: 'fixed' | 'percent';
+  value: number;
+};
+
+type FeeEntry = {
+  name: string;
+  price: number;
+};
 
 /** Mock price per treatment name (would come from API/config) */
 const TREATMENT_PRICES: Record<string, number> = {
@@ -56,8 +77,8 @@ export function TreatmentSummaryModal({
     : [];
   const teeth = appointment?.teeth ?? [];
   const [expandedTreatments, setExpandedTreatments] = useState<Set<string>>(new Set());
-  const [discount, setDiscount] = useState(0);
-  const [additionalFee, setAdditionalFee] = useState(0);
+  const [discount, setDiscount] = useState<DiscountEntry | null>(null);
+  const [fee, setFee] = useState<FeeEntry | null>(null);
 
   useEffect(() => {
     if (open && treatments.length > 0) {
@@ -77,12 +98,18 @@ export function TreatmentSummaryModal({
   };
 
   const subtotal = treatments.reduce((sum, t) => sum + getPrice(t), 0);
-  const total = Math.max(0, subtotal - discount + additionalFee);
+  const discountAmount = discount
+    ? discount.type === 'percent'
+      ? (subtotal * discount.value) / 100
+      : discount.value
+    : 0;
+  const feeAmount = fee?.price ?? 0;
+  const total = Math.max(0, subtotal - discountAmount + feeAmount);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange} className="w-full max-w-md">
-      <DialogContent className="w-full max-h-[90vh] overflow-y-auto flex flex-col rounded-xl">
-        <div className="flex items-start justify-between gap-4">
+      <DialogContent className="w-full max-h-[90vh] flex flex-col rounded-xl p-6 min-h-0">
+        <div className="shrink-0 flex items-start justify-between gap-4">
           <DialogHeader className="p-0">
             <DialogTitle>Treatment Summary</DialogTitle>
           </DialogHeader>
@@ -98,12 +125,12 @@ export function TreatmentSummaryModal({
           </Button>
         </div>
 
-        <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm text-foreground mt-2">
+        <div className="shrink-0 flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm text-foreground mt-2">
           <Info className="h-5 w-5 shrink-0 text-primary mt-0.5" />
           <p>Review and confirm the final treatment prices before saving.</p>
         </div>
 
-        <div className="mt-4 space-y-1">
+        <div className="flex-1 min-h-0 overflow-y-auto mt-4 space-y-1">
           {treatments.map((name) => {
             const isExpanded = expandedTreatments.has(name) || treatments.length <= 3;
             const price = getPrice(name);
@@ -152,57 +179,154 @@ export function TreatmentSummaryModal({
               </div>
             );
           })}
-        </div>
 
-        <div className="mt-4 space-y-2">
+        <div className="mt-4 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Discount</span>
+            <span className="text-sm font-medium text-foreground">Discount</span>
             <Button
               type="button"
               variant="ghost"
               size="sm"
-              className="text-primary h-8 text-xs"
-              onClick={() => setDiscount((d) => (d ? 0 : 200))}
+              className={discount ? 'text-destructive h-8 text-xs' : 'text-primary h-8 text-xs'}
+              onClick={() => (discount ? setDiscount(null) : setDiscount({ title: 'New Customer', type: 'fixed', value: 1200 }))}
             >
-              + Add Discount
+              {discount ? 'Remove Discount' : '+ Add Discount'}
             </Button>
           </div>
-          {discount > 0 && (
-            <p className="text-sm text-foreground">- P{discount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</p>
+          {discount && (
+            <div className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-2">
+              <div className="space-y-1">
+                <Label className="text-xs font-medium">Discount Title</Label>
+                <Input
+                  value={discount.title}
+                  onChange={(e) => setDiscount((d) => d ? { ...d, title: e.target.value } : null)}
+                  placeholder="e.g. New Customer"
+                  className="h-7 text-xs"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium">Type</Label>
+                  <Select
+                    value={discount.type}
+                    onValueChange={(v: 'fixed' | 'percent') => setDiscount((d) => d ? { ...d, type: v } : null)}
+                  >
+                    <SelectTrigger className="h-7 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fixed">Fixed amount</SelectItem>
+                      <SelectItem value="percent">Percentage</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium">Value</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    step={discount.type === 'percent' ? 1 : 0.01}
+                    value={discount.value || ''}
+                    onChange={(e) => setDiscount((d) => d ? { ...d, value: Number(e.target.value) || 0 } : null)}
+                    placeholder={discount.type === 'percent' ? 'e.g. 10' : 'e.g. 1200'}
+                    className="h-7 text-xs"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-0.5">
+                <span className="text-xs text-muted-foreground">Discount amount</span>
+                <span className="text-xs font-medium text-foreground">
+                  ₱ {discountAmount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
           )}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Additional Fee</span>
+            <span className="text-sm font-medium text-foreground">Additional Fee</span>
             <Button
               type="button"
               variant="ghost"
               size="sm"
-              className="text-primary h-8 text-xs"
-              onClick={() => setAdditionalFee((f) => (f ? 0 : 100))}
+              className={fee ? 'text-destructive h-8 text-xs' : 'text-primary h-8 text-xs'}
+              onClick={() => (fee ? setFee(null) : setFee({ name: '', price: 0 }))}
             >
-              + Add Fee
+              {fee ? 'Remove Fee' : '+ Add Fee'}
             </Button>
           </div>
-          {additionalFee > 0 && (
-            <p className="text-sm text-foreground">+ P{additionalFee.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</p>
+          {fee && (
+            <div className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium">Name of the fee</Label>
+                  <Input
+                    value={fee.name}
+                    onChange={(e) => setFee((f) => f ? { ...f, name: e.target.value } : null)}
+                    placeholder="e.g. Lab fee"
+                    className="h-7 text-xs"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium">Price of the fee</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    step={0.01}
+                    value={fee.price || ''}
+                    onChange={(e) => setFee((f) => f ? { ...f, price: Number(e.target.value) || 0 } : null)}
+                    placeholder="e.g. 500"
+                    className="h-7 text-xs"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-0.5">
+                <span className="text-xs text-muted-foreground">Fee amount</span>
+                <span className="text-xs font-medium text-foreground">
+                  ₱ {(fee?.price ?? 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
           )}
         </div>
+        </div>
 
-        <div className="mt-4 pt-4 border-t border-border space-y-1">
+        <div className="shrink-0 mt-4 pt-4 border-t border-border space-y-1">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Subtotal</span>
             <span className="text-foreground">P{subtotal.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
           </div>
+          {discountAmount > 0 && discount && (
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">
+                Discount{discount.title ? ` (${discount.title})` : ''}
+              </span>
+              <span className="text-foreground">- ₱{discountAmount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+            </div>
+          )}
+          {feeAmount > 0 && fee && (
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">
+                {fee.name ? fee.name : 'Additional Fee'}
+              </span>
+              <span className="text-foreground">+ ₱{feeAmount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+            </div>
+          )}
           <div className="flex justify-between text-base font-semibold">
             <span className="text-foreground">Total</span>
             <span className="text-foreground">P{total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
           </div>
         </div>
 
-        <div className="mt-6 flex justify-end gap-2">
+        <div className="shrink-0 mt-5 flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button type="button" onClick={onSaveContinue}>
+          <Button
+            type="button"
+            onClick={() => {
+              onSaveContinue();
+              toast.success('Visit completed. Treatment summary saved.');
+            }}
+          >
             Save & Continue
           </Button>
         </div>

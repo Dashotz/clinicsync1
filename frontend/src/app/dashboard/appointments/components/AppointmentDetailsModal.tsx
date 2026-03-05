@@ -9,8 +9,34 @@ import type { Appointment, AppointmentStatus } from '../lib/types';
 import { formatDateDisplay, formatTimeRangeLong } from '../lib/utils';
 import { AddMedicalRecordModal } from './AddMedicalRecordModal';
 import { TreatmentSummaryModal } from './TreatmentSummaryModal';
+import { ToothChart, type ToothStatus } from './ToothChart';
 
 export type { Appointment, AppointmentStatus };
+
+/** Mock per-patient tooth status from previous visits (has_treatment) and current/pending (pending). */
+const MOCK_PATIENT_TOOTH_HISTORY: Record<string, Partial<Record<number, ToothStatus>>> = {
+  'Ivary Lapina': { 12: 'has_treatment', 20: 'pending' },
+  'John Llyod': { 3: 'has_treatment', 14: 'has_treatment', 19: 'pending' },
+  'Patient A': { 8: 'pending', 25: 'has_treatment' },
+  'Patient B': {},
+  'Patient C': { 30: 'has_treatment' },
+  'Patient D': {},
+};
+
+/** Mock per-patient per-tooth history lines (for "click to view" panel). */
+const MOCK_TOOTH_HISTORY_DETAILS: Record<string, Partial<Record<number, string[]>>> = {
+  'Ivary Lapina': {
+    12: ['Root canal treatment – Jan 2025', 'Filling – Dec 2024'],
+    20: ['Planned: Extraction – current visit'],
+  },
+  'John Llyod': {
+    3: ['Extraction – Nov 2024'],
+    14: ['Filling – Oct 2024'],
+    19: ['Planned: Crown – current visit'],
+  },
+  'Patient A': { 25: ['Cleaning – Sep 2024'] },
+  'Patient C': { 30: ['Filling – Aug 2024'] },
+};
 
 type PatientInfo = {
   fullName: string;
@@ -71,10 +97,14 @@ export function AppointmentDetailsModal({
   const [addMedicalRecordOpen, setAddMedicalRecordOpen] = useState(false);
   const [treatmentSummaryOpen, setTreatmentSummaryOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [selectedToothForHistory, setSelectedToothForHistory] = useState<number | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!open) setMenuOpen(false);
+    if (!open) {
+      setMenuOpen(false);
+      setSelectedToothForHistory(null);
+    }
   }, [open]);
 
   useEffect(() => {
@@ -147,7 +177,7 @@ export function AppointmentDetailsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange} fullHeight className="w-full flex justify-end">
-      <DialogContent className="w-full max-w-[calc(100%-2rem)] sm:max-w-md h-full overflow-y-auto flex flex-col rounded-xl sm:rounded-l-xl sm:rounded-r-none border border-border sm:border-r">
+      <DialogContent className="pointer-events-auto w-full max-w-[calc(100%-2rem)] sm:max-w-md h-full overflow-y-auto flex flex-col rounded-xl sm:rounded-l-xl sm:rounded-r-none border border-border sm:border-r">
         <div className="flex items-start justify-between gap-4">
           <DialogHeader className="p-0">
             <DialogTitle>Appointment details</DialogTitle>
@@ -281,7 +311,48 @@ export function AppointmentDetailsModal({
             </div>
           )}
           {activeTab === 'medical' && (
-            <div className="mt-4 text-sm text-muted-foreground">Medical history will appear here.</div>
+            <div className="mt-4 overflow-y-auto min-h-0 flex flex-col gap-4">
+              <p className="text-xs text-muted-foreground bg-muted/50 border border-border rounded-lg px-3 py-2">
+                Patient medical data shown here is based on previous visits.
+              </p>
+              <h4 className="text-sm font-medium text-foreground">Medical History</h4>
+              <p className="text-xs text-muted-foreground">Click a tooth to view its medical history.</p>
+              <div className="flex-1 min-h-[280px] flex flex-col">
+                <ToothChart
+                  selectedTeeth={[]}
+                  onSelectionChange={() => {}}
+                  toothStatus={(() => {
+                    const fromHistory = MOCK_PATIENT_TOOTH_HISTORY[appointment.patientName] ?? {};
+                    const fromVisit = (appointment.teeth ?? []).reduce<Partial<Record<number, ToothStatus>>>(
+                      (acc, t) => ({ ...acc, [t]: fromHistory[t] ?? 'pending' }),
+                      {}
+                    );
+                    return { ...fromHistory, ...fromVisit };
+                  })()}
+                  onToothClick={(num) => setSelectedToothForHistory((prev) => (prev === num ? null : num))}
+                  hideSelectedHint
+                  legendOnlyHistory
+                  className="min-h-[260px]"
+                />
+              </div>
+              {selectedToothForHistory !== null && (
+                <div className="rounded-lg border border-border bg-card p-3 text-sm">
+                  <h5 className="font-medium text-foreground mb-2">History for tooth #{selectedToothForHistory}</h5>
+                  <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                    {(MOCK_TOOTH_HISTORY_DETAILS[appointment.patientName]?.[selectedToothForHistory] ?? []).length >
+                    0 ? (
+                      (MOCK_TOOTH_HISTORY_DETAILS[appointment.patientName]?.[selectedToothForHistory] ?? []).map(
+                        (line, i) => (
+                          <li key={i}>{line}</li>
+                        )
+                      )
+                    ) : (
+                      <li>No recorded history for this tooth.</li>
+                    )}
+                  </ul>
+                </div>
+              )}
+            </div>
           )}
         </div>
 

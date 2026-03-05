@@ -60,6 +60,7 @@ export const TREATMENT_OPTIONS = [
   'Cleaning',
   'General check-up',
   'Root canal treatment',
+  'Tooth filling',
   'Filling',
   'Extraction',
   'Whitening',

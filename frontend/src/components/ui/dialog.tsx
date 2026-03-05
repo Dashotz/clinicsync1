@@ -33,7 +33,7 @@ export function Dialog({ open, onOpenChange, children, className, fullHeight }: 
   return (
     <div
       className={cn(
-        'fixed inset-0 z-50 flex',
+        'fixed inset-0 z-50 flex pointer-events-auto',
         fullHeight ? 'items-stretch p-0' : 'items-center justify-center p-4'
       )}
       role="dialog"
@@ -48,10 +48,10 @@ export function Dialog({ open, onOpenChange, children, className, fullHeight }: 
       <div
         className={cn(
           'relative z-50 overflow-y-auto',
-          fullHeight ? 'h-full max-h-none' : 'max-h-[90vh]',
+          fullHeight ? 'h-full max-h-none pointer-events-none' : 'max-h-[90vh]',
           className
         )}
-        onClick={(e) => e.stopPropagation()}
+        onClick={fullHeight ? undefined : (e) => e.stopPropagation()}
       >
         {children}
       </div>
