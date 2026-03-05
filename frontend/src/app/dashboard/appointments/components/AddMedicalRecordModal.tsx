@@ -329,16 +329,9 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
       setStep(1);
       setNotes('');
       setAddTreatmentValue('');
-      setSelectedTeeth([20]);
+      setSelectedTeeth([]);
       setToothPopupTooth(null);
-      setToothDetails({
-        20: {
-          condition: 'Infection',
-          treatment: 'Root canal treatment',
-          notes: 'Marami paring infections. Marami paring infections.',
-          treatmentStartedAt: '2026-01-04',
-        },
-      });
+      setToothDetails({});
       setNewTreatmentStatus({});
       setPendingTreatmentStatus({});
     }
@@ -422,7 +415,7 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
               <div
                 className={cn(
                   'flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium',
-                  step > s.id ? 'bg-primary text-primary-foreground' : step === s.id ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                  step >= s.id ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
                 )}
               >
                 {step > s.id ? '✓' : s.id}

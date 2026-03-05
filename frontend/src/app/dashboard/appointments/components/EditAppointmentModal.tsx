@@ -24,15 +24,7 @@ import { CalendarPopover } from '@/components/ui/calendar-popover';
 import { cn } from '@/lib/utils';
 import { formatDateDisplay, time24ToDisplay, toTime24, parseTimeTo24, addOneHour } from '../lib/utils';
 import type { Appointment } from '../lib/types';
-import { DENTISTS, TREATMENT_OPTIONS } from '../lib/constants';
-
-const TIME_OPTIONS = [
-  '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
-  '12:00 PM', '12:30 PM', '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM',
-  '3:00 PM', '3:30 PM', '4:00 PM',
-];
-
-const TREATMENTS = [...TREATMENT_OPTIONS];
+import { DENTISTS, TREATMENT_OPTIONS, TIME_OPTIONS } from '../lib/constants';
 
 export type EditAppointmentModalProps = {
   open: boolean;
@@ -68,10 +60,6 @@ export function EditAppointmentModal({
     }
   }, [open, appointment]);
 
-  const handleClose = (nextOpen: boolean) => {
-    if (!nextOpen) onOpenChange(false);
-  };
-
   const handleSave = () => {
     if (!appointment) return;
     const start24 = parseTimeTo24(time);
@@ -95,7 +83,7 @@ export function EditAppointmentModal({
   const fieldClass = 'space-y-2';
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={cn('w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] max-w-xl mx-auto max-h-[90dvh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6')}>
         <div className="flex items-start justify-between gap-2 sm:gap-4">
           <DialogHeader className="min-w-0">
@@ -105,7 +93,7 @@ export function EditAppointmentModal({
             type="button"
             variant="ghost"
             size="icon"
-            onClick={() => handleClose(false)}
+            onClick={() => onOpenChange(false)}
             aria-label="Close"
             className="h-8 w-8 shrink-0"
           >
@@ -187,7 +175,7 @@ export function EditAppointmentModal({
                 <SelectValue placeholder="Select treatment" />
               </SelectTrigger>
               <SelectContent>
-                {TREATMENTS.map((t) => (
+                {TREATMENT_OPTIONS.map((t) => (
                   <SelectItem key={t} value={t}>{t}</SelectItem>
                 ))}
               </SelectContent>
@@ -208,7 +196,7 @@ export function EditAppointmentModal({
         </div>
 
         <DialogFooter className="mt-4 sm:mt-6 flex flex-col-reverse sm:flex-row flex-wrap items-stretch sm:items-center justify-between sm:justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => handleClose(false)} className="w-full sm:w-auto">
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
             Cancel
           </Button>
           <Button type="button" onClick={handleSave} className="w-full sm:w-auto">

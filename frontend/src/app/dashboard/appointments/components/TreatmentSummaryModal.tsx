@@ -292,7 +292,7 @@ export function TreatmentSummaryModal({
         <div className="shrink-0 mt-4 pt-4 border-t border-border space-y-1">
           <div className="flex justify-between text-xs sm:text-sm gap-2">
             <span className="text-muted-foreground truncate min-w-0">Subtotal</span>
-            <span className="text-foreground shrink-0">P{subtotal.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+            <span className="text-foreground shrink-0">₱{subtotal.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
           </div>
           {discountAmount > 0 && discount && (
             <div className="flex justify-between text-xs sm:text-sm gap-2">
@@ -312,7 +312,7 @@ export function TreatmentSummaryModal({
           )}
           <div className="flex justify-between text-sm sm:text-base font-semibold gap-2">
             <span className="text-foreground">Total</span>
-            <span className="text-foreground shrink-0">P{total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+            <span className="text-foreground shrink-0">₱{total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
           </div>
         </div>
 

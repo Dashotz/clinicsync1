@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { TOOTH_SPOTS } from '../lib/tooth-chart-spots';
+import { TOOTH_SPOTS } from '../lib/toothChartSpots';
 
 /** Adult tooth chart from CodePen (johnstuif/pen/JdOXWa). Universal numbering 1–32, DFM labels, clickable spots. */
 const VIEWBOX = '0 0 450 700';

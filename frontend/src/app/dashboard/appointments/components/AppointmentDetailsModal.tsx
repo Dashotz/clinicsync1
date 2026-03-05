@@ -1,17 +1,16 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { X, Stethoscope, User, Clock, MoreHorizontal, ClipboardList, Check, XCircle, Info, Trash2, Pencil, DollarSign } from 'lucide-react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { X, Stethoscope, Clock, MoreHorizontal, ClipboardList, Info, Trash2, Pencil, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import type { Appointment, AppointmentStatus } from '../lib/types';
 import { formatDateDisplay, formatTimeRangeLong } from '../lib/utils';
+import { STATUS_CONFIG } from '../lib/constants';
 import { AddMedicalRecordModal } from './AddMedicalRecordModal';
 import { TreatmentSummaryModal } from './TreatmentSummaryModal';
 import { ToothChart, type ToothStatus } from './ToothChart';
-
-export type { Appointment, AppointmentStatus };
 
 /** Mock per-patient tooth status from previous visits (has_treatment) and current/pending (pending). */
 const MOCK_PATIENT_TOOTH_HISTORY: Record<string, Partial<Record<number, ToothStatus>>> = {
@@ -71,6 +70,7 @@ const MOCK_PATIENT_INFO: Record<string, PatientInfo> = {
 };
 
 type TabId = 'general' | 'medical' | 'more';
+type PaymentStatus = 'Unpaid' | 'Partially Paid' | 'Paid';
 
 type Props = {
   open: boolean;
@@ -156,22 +156,15 @@ export function AppointmentDetailsModal({
     setTreatmentSummaryOpen(false);
   };
 
-  const handleDelete = () => {
-    setMenuOpen(false);
-    onDelete?.(appointment.id);
-    onOpenChange(false);
-  };
-
-  const tabs: { id: TabId; label: string }[] = [
+  const tabs = useMemo<{ id: TabId; label: string }[]>(() => [
     { id: 'general', label: 'General Info' },
     { id: 'medical', label: 'Medical History' },
     ...(appointment.status === 'Completed' ? [{ id: 'more' as const, label: 'More Info' }] : []),
-  ];
+  ], [appointment.status]);
 
   /** Mock billing for completed appointments (would come from API) */
   const billNumber = '23211';
   const billTotal = 2300;
-  type PaymentStatus = 'Unpaid' | 'Partially Paid' | 'Paid';
   const paymentStatus: PaymentStatus = 'Partially Paid' as PaymentStatus;
   /** Mock last payment for tooltip (would come from API) */
   const lastPayment =
@@ -183,16 +176,19 @@ export function AppointmentDetailsModal({
       ? 'No payments yet'
       : paymentStatus === 'Paid'
         ? `Fully paid on ${lastPayment!.date}`
-        : `Last payment (P${lastPayment!.amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}) on ${lastPayment!.date}`;
+        : `Last payment (₱${lastPayment!.amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}) on ${lastPayment!.date}`;
 
-  const statusConfig = {
-    Scheduled: { icon: Clock, badge: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-700', iconCircle: 'bg-amber-700 text-white dark:bg-amber-600' },
-    'Check-in': { icon: User, badge: 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-200 dark:border-emerald-700', iconCircle: 'bg-emerald-600 text-white dark:bg-emerald-500' },
-    Completed: { icon: Check, badge: 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-200 dark:border-green-700', iconCircle: 'bg-green-600 text-white dark:bg-green-500' },
-    'Not seen': { icon: XCircle, badge: 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-200 dark:border-red-700', iconCircle: 'bg-red-600 text-white dark:bg-red-500' },
-  } as const;
-  const statusStyle = statusConfig[appointment.status];
+  const statusStyle = STATUS_CONFIG[appointment.status];
   const StatusIcon = statusStyle.icon;
+
+  const medicalToothStatus = useMemo<Partial<Record<number, ToothStatus>>>(() => {
+    const fromHistory = MOCK_PATIENT_TOOTH_HISTORY[appointment.patientName] ?? {};
+    const fromVisit = (appointment.teeth ?? []).reduce<Partial<Record<number, ToothStatus>>>(
+      (acc, t) => ({ ...acc, [t]: fromHistory[t] ?? 'pending' }),
+      {}
+    );
+    return { ...fromHistory, ...fromVisit };
+  }, [appointment.patientName, appointment.teeth]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange} fullHeight className="w-full flex justify-end">
@@ -375,14 +371,7 @@ export function AppointmentDetailsModal({
                 <ToothChart
                   selectedTeeth={[]}
                   onSelectionChange={() => {}}
-                  toothStatus={(() => {
-                    const fromHistory = MOCK_PATIENT_TOOTH_HISTORY[appointment.patientName] ?? {};
-                    const fromVisit = (appointment.teeth ?? []).reduce<Partial<Record<number, ToothStatus>>>(
-                      (acc, t) => ({ ...acc, [t]: fromHistory[t] ?? 'pending' }),
-                      {}
-                    );
-                    return { ...fromHistory, ...fromVisit };
-                  })()}
+                  toothStatus={medicalToothStatus}
                   onToothClick={(num) => setSelectedToothForHistory((prev) => (prev === num ? null : num))}
                   hideSelectedHint
                   legendOnlyHistory
@@ -393,16 +382,12 @@ export function AppointmentDetailsModal({
                 <div className="rounded-lg border border-border bg-card p-2.5 sm:p-3 text-xs sm:text-sm">
                   <h5 className="font-medium text-foreground mb-1.5 sm:mb-2">History for tooth #{selectedToothForHistory}</h5>
                   <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                    {(MOCK_TOOTH_HISTORY_DETAILS[appointment.patientName]?.[selectedToothForHistory] ?? []).length >
-                    0 ? (
-                      (MOCK_TOOTH_HISTORY_DETAILS[appointment.patientName]?.[selectedToothForHistory] ?? []).map(
-                        (line, i) => (
-                          <li key={i}>{line}</li>
-                        )
-                      )
-                    ) : (
-                      <li>No recorded history for this tooth.</li>
-                    )}
+                    {(() => {
+                      const lines = MOCK_TOOTH_HISTORY_DETAILS[appointment.patientName]?.[selectedToothForHistory] ?? [];
+                      return lines.length > 0
+                        ? lines.map((line) => <li key={line}>{line}</li>)
+                        : <li>No recorded history for this tooth.</li>;
+                    })()}
                   </ul>
                 </div>
               )}

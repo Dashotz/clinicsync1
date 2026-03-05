@@ -22,6 +22,8 @@ import {
   addOneHour,
   parseTime,
   formatTimeRange,
+  formatDateDisplay,
+  time24ToDisplay,
   slotKey,
 } from './lib/utils';
 import type { NewAppointmentSavedData } from './components/NewAppointmentModal';
@@ -157,11 +159,10 @@ export default function AppointmentsPage() {
   /** Slots from NOT_AVAILABLE_SLOTS that user chose to make available: key = "dentistId-slotIndex" */
   const [userAvailableOverrides, setUserAvailableOverrides] = useState<Set<string>>(new Set());
 
-  const dateLabel = selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  const isToday = useMemo(() => {
-    const t = new Date();
-    return selectedDate.getDate() === t.getDate() && selectedDate.getMonth() === t.getMonth() && selectedDate.getFullYear() === t.getFullYear();
-  }, [selectedDate]);
+  const dateLabel = useMemo(
+    () => selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    [selectedDate]
+  );
 
   const selectedDateStr = useMemo(
     () =>
@@ -184,7 +185,8 @@ export default function AppointmentsPage() {
   const [editAppointmentOpen, setEditAppointmentOpen] = useState(false);
   const [appointmentToEdit, setAppointmentToEdit] = useState<Appointment | null>(null);
 
-  const todayStr = getTodayStr();
+  const todayStr = useMemo(() => getTodayStr(), []);
+  const isToday = selectedDateStr === todayStr;
   const next7DaysEnd = useMemo(() => {
     const d = new Date();
     d.setDate(d.getDate() + 6);
@@ -367,7 +369,9 @@ export default function AppointmentsPage() {
         >
           + New Appointment
         </Button>
-        <NewAppointmentModal
+      </header>
+
+      <NewAppointmentModal
           open={newAppointmentOpen}
           onOpenChange={(open) => {
             if (!open) setNewAppointmentPreselected(null);
@@ -456,7 +460,6 @@ export default function AppointmentsPage() {
             );
           }}
         />
-      </header>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 flex-shrink-0">
         <div className="rounded-lg border border-border bg-card p-4">
@@ -777,17 +780,8 @@ export default function AppointmentsPage() {
                   logPaginated.map((apt) => {
                     const dentist = DENTISTS.find((d) => d.id === apt.dentistId);
                     const { icon: Icon, bg } = STATUS_CONFIG[apt.status];
-                    const dateFormatted = new Date(apt.date + 'T12:00:00').toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    });
-                    const timeDisplay = (() => {
-                      const [h, m] = apt.start.split(':').map(Number);
-                      const am = (h ?? 0) < 12;
-                      const h12 = (h ?? 0) % 12 || 12;
-                      return `${h12}:${String(m ?? 0).padStart(2, '0')} ${am ? 'AM' : 'PM'}`;
-                    })();
+                    const dateFormatted = formatDateDisplay(apt.date);
+                    const timeDisplay = time24ToDisplay(apt.start);
                     const isMenuOpen = logActionMenuId === apt.id;
                     return (
                       <tr key={apt.id} className="border-b border-border last:border-b-0 hover:bg-muted/30">
@@ -822,10 +816,7 @@ export default function AppointmentsPage() {
                         <td className="py-2 px-2 sm:px-3 align-middle">
                           <span className={cn(
                             'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] sm:text-xs font-medium',
-                            apt.status === 'Scheduled' && 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-700',
-                            apt.status === 'Check-in' && 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-200 dark:border-emerald-700',
-                            apt.status === 'Completed' && 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-200 dark:border-green-700',
-                            apt.status === 'Not seen' && 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-200 dark:border-red-700'
+                            STATUS_CONFIG[apt.status].badge
                           )}>
                             <Icon className="w-3 h-3 shrink-0" />
                             {apt.status}

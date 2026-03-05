@@ -24,16 +24,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CalendarPopover } from '@/components/ui/calendar-popover';
 import { cn } from '@/lib/utils';
 import { getTodayStr, formatDateDisplay } from '../lib/utils';
-import { DENTISTS, TREATMENT_OPTIONS } from '../lib/constants';
-
-const DENTIST_OPTIONS = DENTISTS;
-const TREATMENTS = [...TREATMENT_OPTIONS];
-
-const TIME_OPTIONS = [
-  '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
-  '12:00 PM', '12:30 PM', '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM',
-  '3:00 PM', '3:30 PM', '4:00 PM',
-];
+import { DENTISTS, TREATMENT_OPTIONS, TIME_OPTIONS } from '../lib/constants';
 
 export type Step1Data = {
   dentistId: string;
@@ -52,7 +43,7 @@ export type Step2Data = {
 };
 
 const defaultStep1: Step1Data = {
-  dentistId: String(DENTIST_OPTIONS[0].id),
+  dentistId: String(DENTISTS[0].id),
   date: getTodayStr(),
   time: '9:00 AM',
   treatment: '',
@@ -208,7 +199,7 @@ export function NewAppointmentModal({
                       <SelectValue placeholder="Select dentist" />
                     </SelectTrigger>
                     <SelectContent>
-                      {DENTIST_OPTIONS.map((d) => (
+                      {DENTISTS.map((d) => (
                         <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
                       ))}
                     </SelectContent>
@@ -260,7 +251,7 @@ export function NewAppointmentModal({
                     <SelectValue placeholder="Select treatment" />
                   </SelectTrigger>
                   <SelectContent>
-                    {TREATMENTS.map((t) => (
+                    {TREATMENT_OPTIONS.map((t) => (
                       <SelectItem key={t} value={t}>{t}</SelectItem>
                     ))}
                   </SelectContent>
