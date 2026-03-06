@@ -241,9 +241,9 @@ function ToothDetailPopover({
         <>
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <Label className="text-xs">Condition</Label>
+              <Label htmlFor="tooth-condition" className="text-xs">Condition</Label>
               <Select value={condition || undefined} onValueChange={onConditionChange}>
-                <SelectTrigger className="h-8 text-sm">
+                <SelectTrigger id="tooth-condition" className="h-8 text-sm">
                   <SelectValue placeholder="Select tooth condition" />
                 </SelectTrigger>
                 <SelectContent>
@@ -256,9 +256,9 @@ function ToothDetailPopover({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Treatment</Label>
+              <Label htmlFor="tooth-treatment" className="text-xs">Treatment</Label>
               <Select value={treatment || undefined} onValueChange={onTreatmentChange}>
-                <SelectTrigger className="h-8 text-sm">
+                <SelectTrigger id="tooth-treatment" className="h-8 text-sm">
                   <SelectValue placeholder="Select treatment" />
                 </SelectTrigger>
                 <SelectContent>
@@ -271,8 +271,9 @@ function ToothDetailPopover({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Notes</Label>
+              <Label htmlFor="tooth-notes" className="text-xs">Notes</Label>
               <Textarea
+                id="tooth-notes"
                 placeholder="Enter notes"
                 value={notes}
                 onChange={(e) => onNotesChange(e.target.value)}
@@ -440,7 +441,7 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
             </p>
 
             <div className="space-y-2 mt-3 sm:mt-4">
-              <Label className="text-xs sm:text-sm">Treatment</Label>
+              <Label htmlFor="visit-treatment-select" className="text-xs sm:text-sm">Treatment</Label>
               <div className="flex flex-wrap gap-2 min-h-[36px] rounded-md border border-input bg-transparent px-2.5 sm:px-3 py-2 text-xs sm:text-sm">
                 {treatments.map((t) => (
                   <span
@@ -459,7 +460,7 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
                   </span>
                 ))}
                 <Select value={addTreatmentValue} onValueChange={(v) => addTreatment(v)}>
-                  <SelectTrigger className="w-[120px] sm:w-[140px] h-7 border-0 shadow-none focus:ring-0 p-0 gap-1 text-xs sm:text-sm">
+                  <SelectTrigger id="visit-treatment-select" className="w-[120px] sm:w-[140px] h-7 border-0 shadow-none focus:ring-0 p-0 gap-1 text-xs sm:text-sm">
                     <SelectValue placeholder="Add treatment" />
                   </SelectTrigger>
                   <SelectContent>
@@ -483,8 +484,9 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
             </div>
 
             <div className="space-y-2 mt-3 sm:mt-4">
-              <Label className="text-xs sm:text-sm">Notes (Optional)</Label>
+              <Label htmlFor="visit-notes" className="text-xs sm:text-sm">Notes (Optional)</Label>
               <Textarea
+                id="visit-notes"
                 placeholder="Add note or remarks about this visit"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}

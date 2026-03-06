@@ -196,8 +196,9 @@ export function TreatmentSummaryModal({
           {discount && (
             <div className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-2">
               <div className="space-y-1">
-                <Label className="text-xs font-medium">Discount Title</Label>
+                <Label htmlFor="discount-title" className="text-xs font-medium">Discount Title</Label>
                 <Input
+                  id="discount-title"
                   value={discount.title}
                   onChange={(e) => setDiscount((d) => d ? { ...d, title: e.target.value } : null)}
                   placeholder="e.g. New Customer"
@@ -206,12 +207,12 @@ export function TreatmentSummaryModal({
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <Label className="text-xs font-medium">Type</Label>
+                  <Label htmlFor="discount-type" className="text-xs font-medium">Type</Label>
                   <Select
                     value={discount.type}
                     onValueChange={(v: 'fixed' | 'percent') => setDiscount((d) => d ? { ...d, type: v } : null)}
                   >
-                    <SelectTrigger className="h-7 text-xs">
+                    <SelectTrigger id="discount-type" className="h-7 text-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -221,8 +222,9 @@ export function TreatmentSummaryModal({
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs font-medium">Value</Label>
+                  <Label htmlFor="discount-value" className="text-xs font-medium">Value</Label>
                   <Input
+                    id="discount-value"
                     type="number"
                     min={0}
                     step={discount.type === 'percent' ? 1 : 0.01}
@@ -257,8 +259,9 @@ export function TreatmentSummaryModal({
             <div className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <Label className="text-xs font-medium">Name of the fee</Label>
+                  <Label htmlFor="fee-name" className="text-xs font-medium">Name of the fee</Label>
                   <Input
+                    id="fee-name"
                     value={fee.name}
                     onChange={(e) => setFee((f) => f ? { ...f, name: e.target.value } : null)}
                     placeholder="e.g. Lab fee"
@@ -266,8 +269,9 @@ export function TreatmentSummaryModal({
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs font-medium">Price of the fee</Label>
+                  <Label htmlFor="fee-price" className="text-xs font-medium">Price of the fee</Label>
                   <Input
+                    id="fee-price"
                     type="number"
                     min={0}
                     step={0.01}
