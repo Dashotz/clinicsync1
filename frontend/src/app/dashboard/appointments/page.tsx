@@ -95,7 +95,10 @@ function getLogMockAppointments(): Appointment[] {
   return list.slice(0, 54);
 }
 
-const INITIAL_APPOINTMENTS = getLogMockAppointments();
+// Intentionally not computed at module level — see useEffect below.
+// Module-level new Date() is cached by the server and diverges from the client,
+// causing React hydration error #418.
+let INITIAL_APPOINTMENTS: Appointment[] = [];
 
 function filterByDateAndFilters(
   list: Appointment[],
@@ -142,7 +145,7 @@ function AppointmentCard({ cell }: { cell: Appointment }) {
 
 export default function AppointmentsPage() {
   const [activeTab, setActiveTab] = useState<'calendar' | 'log'>('calendar');
-  const [selectedDate, setSelectedDate] = useState(() => new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [dentistFilter, setDentistFilter] = useState('All Dentist');
   const [statusFilter, setStatusFilter] = useState('Status');
   const [newAppointmentOpen, setNewAppointmentOpen] = useState(false);
@@ -152,7 +155,7 @@ export default function AppointmentsPage() {
     time: string;
     dentistId: number;
   } | null>(null);
-  const [appointmentsList, setAppointmentsList] = useState<Appointment[]>(() => INITIAL_APPOINTMENTS);
+  const [appointmentsList, setAppointmentsList] = useState<Appointment[]>(MOCK_APPOINTMENTS_JAN6);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   /** User-toggled "not available" slots: key = "dentistId-slotIndex" */
   const [userNotAvailableSlots, setUserNotAvailableSlots] = useState<Set<string>>(new Set());
@@ -160,13 +163,16 @@ export default function AppointmentsPage() {
   const [userAvailableOverrides, setUserAvailableOverrides] = useState<Set<string>>(new Set());
 
   const dateLabel = useMemo(
-    () => selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    () => selectedDate
+      ? selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      : '',
     [selectedDate]
   );
 
   const selectedDateStr = useMemo(
-    () =>
-      `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`,
+    () => selectedDate
+      ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
+      : '',
     [selectedDate]
   );
 
@@ -185,13 +191,9 @@ export default function AppointmentsPage() {
   const [editAppointmentOpen, setEditAppointmentOpen] = useState(false);
   const [appointmentToEdit, setAppointmentToEdit] = useState<Appointment | null>(null);
 
-  const todayStr = useMemo(() => getTodayStr(), []);
-  const isToday = selectedDateStr === todayStr;
-  const next7DaysEnd = useMemo(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 6);
-    return d.toISOString().slice(0, 10);
-  }, []);
+  const [todayStr, setTodayStr] = useState('');
+  const isToday = selectedDate !== null && selectedDateStr === todayStr;
+  const [next7DaysEnd, setNext7DaysEnd] = useState('');
   const appointmentsNext7Days = useMemo(() => {
     return appointmentsList.filter((a) => a.date >= todayStr && a.date <= next7DaysEnd).length;
   }, [appointmentsList, todayStr, next7DaysEnd]);
@@ -252,7 +254,22 @@ export default function AppointmentsPage() {
     });
   const goToday = () => setSelectedDate(new Date());
 
-  const [currentHour, setCurrentHour] = useState(() => new Date().getHours() + new Date().getMinutes() / 60);
+  // Initialise all date-dependent state client-side only to prevent hydration mismatch.
+  // new Date() on the Vercel server (UTC) diverges from the client's local timezone.
+  useEffect(() => {
+    const today = new Date();
+    setSelectedDate(today);
+    setTodayStr(getTodayStr());
+    const end = new Date(today);
+    end.setDate(end.getDate() + 6);
+    setNext7DaysEnd(end.toISOString().slice(0, 10));
+    if (INITIAL_APPOINTMENTS.length === 0) {
+      INITIAL_APPOINTMENTS = getLogMockAppointments();
+    }
+    setAppointmentsList(getLogMockAppointments());
+  }, []);
+
+  const [currentHour, setCurrentHour] = useState(0);
   useEffect(() => {
     const tick = () => setCurrentHour(new Date().getHours() + new Date().getMinutes() / 60);
     tick();
