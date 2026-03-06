@@ -242,13 +242,13 @@ export default function AppointmentsPage() {
 
   const goPrevDay = () =>
     setSelectedDate((d) => {
-      const next = new Date(d);
+      const next = new Date(d ?? new Date());
       next.setDate(next.getDate() - 1);
       return next;
     });
   const goNextDay = () =>
     setSelectedDate((d) => {
-      const next = new Date(d);
+      const next = new Date(d ?? new Date());
       next.setDate(next.getDate() + 1);
       return next;
     });
