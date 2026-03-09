@@ -180,7 +180,7 @@ export function AddTreatmentModal({ open, onOpenChange, onSave }: Props) {
               value={toothNumber != null ? String(toothNumber) : ''}
               onValueChange={(v) => {
                 setToothNumber(v ? Number(v) : null);
-                setErrors((e) => ({ ...e, toothNumber: undefined }));
+                setErrors((e) => { const { toothNumber: _, ...rest } = e; return rest; });
               }}
             >
               <SelectTrigger className={cn(errors.toothNumber && 'border-destructive')}>
@@ -200,7 +200,7 @@ export function AddTreatmentModal({ open, onOpenChange, onSave }: Props) {
           <div className="flex flex-col sm:flex-row gap-2 sm:items-start">
             <div className="flex-1 min-w-0 space-y-2">
               <Label>Treatment</Label>
-              <Select value={treatment} onValueChange={(v) => { setTreatment(v); setErrors((e) => ({ ...e, treatment: undefined })); }}>
+              <Select value={treatment} onValueChange={(v) => { setTreatment(v); setErrors((e) => { const { treatment: _, ...rest } = e; return rest; }); }}>
                 <SelectTrigger className={cn(errors.treatment && 'border-destructive')}>
                   <SelectValue placeholder="Select Treatment" />
                 </SelectTrigger>
@@ -220,7 +220,7 @@ export function AddTreatmentModal({ open, onOpenChange, onSave }: Props) {
                   type="text"
                   inputMode="decimal"
                   value={fee}
-                  onChange={(e) => { setFee(restrictToDecimal(e.target.value)); setErrors((e) => ({ ...e, fee: undefined })); }}
+                  onChange={(ev) => { setFee(restrictToDecimal(ev.target.value)); setErrors((e) => { const { fee: _, ...rest } = e; return rest; }); }}
                   className={cn('h-9', errors.fee && 'border-destructive')}
                 />
               </div>
@@ -245,7 +245,7 @@ export function AddTreatmentModal({ open, onOpenChange, onSave }: Props) {
               onValueChange={(v) => {
                 setStatus(v);
                 if (v === 'Planned' || v === 'In Progress') setProvider((p) => (p === EXTERNAL_VALUE ? '' : p));
-                setErrors((e) => ({ ...e, status: undefined }));
+                setErrors((e) => { const { status: _, ...rest } = e; return rest; });
               }}
             >
               <SelectTrigger className={cn(errors.status && 'border-destructive')}>
@@ -267,7 +267,7 @@ export function AddTreatmentModal({ open, onOpenChange, onSave }: Props) {
 
           <div className="space-y-2">
             <Label>Provider</Label>
-            <Select value={provider} onValueChange={(v) => { setProvider(v); setErrors((e) => ({ ...e, provider: undefined })); }}>
+            <Select value={provider} onValueChange={(v) => { setProvider(v); setErrors((e) => { const { provider: _, ...rest } = e; return rest; }); }}>
               <SelectTrigger className={cn(errors.provider && 'border-destructive')}>
                 <SelectValue placeholder="Select Provider" />
               </SelectTrigger>

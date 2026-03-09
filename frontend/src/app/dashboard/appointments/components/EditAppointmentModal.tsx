@@ -112,7 +112,7 @@ export function EditAppointmentModal({
         <div className="mt-3 sm:mt-4 rounded-lg border border-border/60 bg-muted/30 px-3 sm:px-4 py-3 sm:py-4 space-y-3 sm:space-y-4">
           <div className={fieldClass}>
             <Label htmlFor="edit-patient" className="text-xs sm:text-sm">Patient</Label>
-            <Select value={patientName} onValueChange={(v) => { setPatientName(v); setErrors((e) => ({ ...e, patientName: undefined })); }}>
+            <Select value={patientName} onValueChange={(v) => { setPatientName(v); setErrors((e) => { const { patientName: _, ...rest } = e; return rest; }); }}>
               <SelectTrigger id="edit-patient" className={cn('w-full', inputShadowClass, errors.patientName && 'border-destructive')}>
                 <SelectValue placeholder="Select patient" />
               </SelectTrigger>
@@ -149,7 +149,7 @@ export function EditAppointmentModal({
                 <CalendarPopover
                   id="edit-date"
                   value={date}
-                  onChange={(d) => { setDate(d); setErrors((e) => ({ ...e, date: undefined })); }}
+                  onChange={(d) => { setDate(d); setErrors((e) => { const { date: _, ...rest } = e; return rest; }); }}
                   trigger={
                     <span className="block flex-1 truncate text-left">
                       {date ? formatDateDisplay(date) : 'Select date'}
@@ -164,7 +164,7 @@ export function EditAppointmentModal({
               <Label htmlFor="edit-time" className="text-xs sm:text-sm">Appointment Time</Label>
               <div className="relative">
                 <Clock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none z-10" />
-                <Select value={time} onValueChange={(v) => { setTime(v); setErrors((e) => ({ ...e, time: undefined })); }}>
+                <Select value={time} onValueChange={(v) => { setTime(v); setErrors((e) => { const { time: _, ...rest } = e; return rest; }); }}>
                   <SelectTrigger id="edit-time" className={cn('w-full pl-9', inputShadowClass, errors.time && 'border-destructive')}>
                     <SelectValue placeholder="Select time" />
                   </SelectTrigger>
