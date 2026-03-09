@@ -1,71 +1,103 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
-import { Download, Filter, Import, MoreVertical, Plus, Search, ArrowUpDown } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useRouter } from 'next/navigation';
+import { Download, Filter, Import, MoreVertical, Plus, Search, ChevronDown, Check, User, Pencil, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { PATIENT_ROWS } from './patientData';
 
-type PatientRow = {
-  id: string;
-  name: string;
-  mobile: string;
-  email: string;
-  lastVisit: string;
-};
+const ACTION_MENU_WIDTH = 224;
+const ACTION_MENU_GAP = 8;
 
 const TOTAL_PATIENTS = 300;
 const NEW_PATIENTS_THIS_WEEK = 24;
 
-const PATIENT_ROWS: PatientRow[] = [
-  { id: 'p1', name: 'Francis Cruz', mobile: '+9454987652', email: 'francis@gmail.com', lastVisit: 'Today' },
-  { id: 'p2', name: 'Francis Cruz', mobile: '+9454987652', email: 'francis@gmail.com', lastVisit: '3 days ago' },
-  { id: 'p3', name: 'Francis Cruz', mobile: '+9454987652', email: 'francis@gmail.com', lastVisit: 'Jan 6, 2026' },
-  // Fill to 54 rows with realistic-looking data
-  ...Array.from({ length: 51 }, (_, i) => {
-    const idx = i + 4;
-    const name = ['Ivary Lapina', 'John Llyod', 'Patient A', 'Patient B', 'Patient C', 'Patient D'][i % 6];
-    const last = ['Today', 'Yesterday', '3 days ago', 'Jan 6, 2026', 'Dec 12, 2025'][i % 5];
-    return {
-      id: `p${idx}`,
-      name,
-      mobile: '+63912345678',
-      email: `${name.toLowerCase().replace(/\s+/g, '')}@example.com`,
-      lastVisit: last,
-    } satisfies PatientRow;
-  }),
-];
-
-type FilterValue = 'All' | 'Visited recently' | 'No recent visit';
-type SortValue = 'Name (A–Z)' | 'Name (Z–A)' | 'Last visit (newest)' | 'Last visit (oldest)';
+type SortValue = 'By Name' | 'By Last Visit';
 
 export default function PatientsPage() {
+  const router = useRouter();
   const [query, setQuery] = useState('');
-  const [filter, setFilter] = useState<FilterValue>('All');
-  const [sort, setSort] = useState<SortValue>('Last visit (newest)');
+  const [statusFilter, setStatusFilter] = useState<Set<'Active' | 'Archive'>>(() => new Set(['Active']));
+  const [sort, setSort] = useState<SortValue>('By Last Visit');
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [sortOpen, setSortOpen] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
+  const sortRef = useRef<HTMLDivElement>(null);
 
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [actionMenuId, setActionMenuId] = useState<string | null>(null);
+  const [actionMenuPosition, setActionMenuPosition] = useState<{ top: number; left: number } | null>(null);
+  const actionButtonRef = useRef<HTMLButtonElement | null>(null);
+  const actionMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!filterOpen && !sortOpen) return;
+    const onDown = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (filterOpen && filterRef.current?.contains(t)) return;
+      if (sortOpen && sortRef.current?.contains(t)) return;
+      setFilterOpen(false);
+      setSortOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [filterOpen, sortOpen]);
+
+  useEffect(() => {
+    if (!actionMenuId) {
+      setActionMenuPosition(null);
+      return;
+    }
+    const el = actionButtonRef.current;
+    if (!el) return;
+
+    const updatePosition = () => {
+      const rect = el.getBoundingClientRect();
+      const menuHeight = 160;
+      const padding = 8;
+      let left = rect.right - ACTION_MENU_WIDTH;
+      let top = rect.bottom + ACTION_MENU_GAP;
+      if (left < padding) left = padding;
+      if (left + ACTION_MENU_WIDTH > window.innerWidth - padding) left = window.innerWidth - ACTION_MENU_WIDTH - padding;
+      if (top + menuHeight > window.innerHeight - padding) top = rect.top - menuHeight - ACTION_MENU_GAP;
+      if (top < padding) top = padding;
+      setActionMenuPosition({ top, left });
+    };
+
+    updatePosition();
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [actionMenuId]);
+
+  useEffect(() => {
+    if (!actionMenuId) return;
+    const onDown = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (actionMenuRef.current?.contains(t)) return;
+      if (actionButtonRef.current?.contains(t)) return;
+      setActionMenuId(null);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [actionMenuId]);
 
   const filtered = useMemo(() => {
     let list = [...PATIENT_ROWS];
     const q = query.trim().toLowerCase();
     if (q) list = list.filter((r) => r.name.toLowerCase().includes(q));
 
-    if (filter === 'Visited recently') {
-      list = list.filter((r) => r.lastVisit === 'Today' || r.lastVisit === 'Yesterday' || r.lastVisit.includes('days ago'));
-    } else if (filter === 'No recent visit') {
-      list = list.filter((r) => !(r.lastVisit === 'Today' || r.lastVisit === 'Yesterday' || r.lastVisit.includes('days ago')));
+    if (statusFilter.size > 0) {
+      list = list.filter((r) => statusFilter.has(r.status));
     }
 
     const rankLast = (v: string) => {
@@ -76,15 +108,12 @@ export default function PatientsPage() {
     };
 
     list.sort((a, b) => {
-      if (sort === 'Name (A–Z)') return a.name.localeCompare(b.name);
-      if (sort === 'Name (Z–A)') return b.name.localeCompare(a.name);
-      if (sort === 'Last visit (oldest)') return rankLast(b.lastVisit) - rankLast(a.lastVisit);
-      // Last visit (newest)
+      if (sort === 'By Name') return a.name.localeCompare(b.name);
       return rankLast(a.lastVisit) - rankLast(b.lastVisit);
     });
 
     return list;
-  }, [query, filter, sort]);
+  }, [query, sort, statusFilter]);
 
   const totalCount = filtered.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / rowsPerPage));
@@ -155,41 +184,95 @@ export default function PatientsPage() {
               className="pl-9"
             />
           </div>
-          <Select
-            value={filter}
-            onValueChange={(v: FilterValue) => {
-              setFilter(v);
-              setPage(1);
-            }}
-          >
-            <SelectTrigger className="w-[110px] h-9 text-xs sm:text-sm">
-              <Filter className="h-4 w-4 mr-1.5 opacity-60" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All</SelectItem>
-              <SelectItem value="Visited recently">Visited recently</SelectItem>
-              <SelectItem value="No recent visit">No recent visit</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select
-            value={sort}
-            onValueChange={(v: SortValue) => {
-              setSort(v);
-              setPage(1);
-            }}
-          >
-            <SelectTrigger className="w-[120px] h-9 text-xs sm:text-sm">
-              <ArrowUpDown className="h-4 w-4 mr-1.5 opacity-60" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Last visit (newest)">Last visit</SelectItem>
-              <SelectItem value="Name (A–Z)">Name (A–Z)</SelectItem>
-              <SelectItem value="Name (Z–A)">Name (Z–A)</SelectItem>
-              <SelectItem value="Last visit (oldest)">Last visit (oldest)</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="relative" ref={filterRef}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-1.5 h-9"
+              onClick={() => {
+                setFilterOpen((o) => !o);
+                setSortOpen(false);
+              }}
+            >
+              <Filter className="h-4 w-4 opacity-70" />
+              Filter
+              <ChevronDown className="h-4 w-4 opacity-60" />
+            </Button>
+            {filterOpen && (
+              <div className="absolute left-0 top-full mt-2 z-50 w-56 rounded-xl border border-border bg-popover text-popover-foreground shadow-lg p-2">
+                <p className="px-2 pt-1 pb-2 text-[11px] font-medium text-muted-foreground">Status</p>
+                {(['Active', 'Archive'] as const).map((s) => {
+                  const checked = statusFilter.has(s);
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => {
+                        setStatusFilter((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(s)) next.delete(s);
+                          else next.add(s);
+                          return next;
+                        });
+                        setPage(1);
+                      }}
+                      className={cn(
+                        'w-full flex items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-muted/60',
+                        checked && 'bg-muted/40'
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          'h-4 w-4 rounded border border-border bg-background flex items-center justify-center',
+                          checked && 'border-primary'
+                        )}
+                        aria-hidden
+                      >
+                        {checked && <Check className="h-3 w-3 text-primary" />}
+                      </span>
+                      <span>{s}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="relative" ref={sortRef}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-1.5 h-9"
+              onClick={() => {
+                setSortOpen((o) => !o);
+                setFilterOpen(false);
+              }}
+            >
+              Sort
+              <ChevronDown className="h-4 w-4 opacity-60" />
+            </Button>
+            {sortOpen && (
+              <div className="absolute left-0 top-full mt-2 z-50 w-44 rounded-xl border border-border bg-popover text-popover-foreground shadow-lg py-1">
+                {(['By Name', 'By Last Visit'] as const).map((opt) => (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => {
+                      setSort(opt);
+                      setSortOpen(false);
+                      setPage(1);
+                    }}
+                    className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm hover:bg-muted/60"
+                  >
+                    <span>{opt}</span>
+                    {sort === opt && <Check className="h-4 w-4 text-primary" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center gap-2 justify-between lg:justify-end">
@@ -240,36 +323,19 @@ export default function PatientsPage() {
                   <td className="px-3 py-3 text-sm text-muted-foreground">{row.email}</td>
                   <td className="px-3 py-3 text-sm text-muted-foreground">{row.lastVisit}</td>
                   <td className="px-3 py-3 text-center">
-                    <div className="relative inline-flex">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => setActionMenuId((v) => (v === row.id ? null : row.id))}
-                        aria-label="Row actions"
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                      {actionMenuId === row.id && (
-                        <div className="absolute right-0 top-full mt-1 z-50 min-w-[160px] rounded-lg border border-border bg-popover text-popover-foreground shadow-md py-1">
-                          <button
-                            type="button"
-                            className="w-full text-left px-3 py-2 text-sm hover:bg-muted/70"
-                            onClick={() => setActionMenuId(null)}
-                          >
-                            View patient
-                          </button>
-                          <button
-                            type="button"
-                            className="w-full text-left px-3 py-2 text-sm hover:bg-muted/70"
-                            onClick={() => setActionMenuId(null)}
-                          >
-                            Edit patient
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        actionButtonRef.current = e.currentTarget;
+                        setActionMenuId((v) => (v === row.id ? null : row.id));
+                      }}
+                      aria-label="Row actions"
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -328,6 +394,61 @@ export default function PatientsPage() {
           </div>
         </div>
       </div>
+
+      {typeof document !== 'undefined' && actionMenuId && actionMenuPosition && (() => {
+        const actionRow = filtered.find((r) => r.id === actionMenuId);
+        if (!actionRow) return null;
+        return createPortal(
+          <div
+            ref={actionMenuRef}
+            style={{
+              position: 'fixed',
+              top: actionMenuPosition.top,
+              left: actionMenuPosition.left,
+              zIndex: 50,
+              width: ACTION_MENU_WIDTH,
+            }}
+            className="rounded-xl border border-border bg-popover text-popover-foreground shadow-lg overflow-hidden"
+          >
+            <div className="px-3 py-2 text-xs font-medium text-muted-foreground border-b border-border/60">
+              {actionRow.name}
+            </div>
+            <div className="py-1">
+              <button
+                type="button"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted/60 text-foreground"
+                onClick={() => {
+                  setActionMenuId(null);
+                  router.push(`/dashboard/patients/${actionRow.id}`);
+                }}
+              >
+                <User className="h-4 w-4 text-muted-foreground" />
+                View Details
+              </button>
+              <button
+                type="button"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted/60 text-foreground"
+                onClick={() => setActionMenuId(null)}
+              >
+                <Pencil className="h-4 w-4 text-muted-foreground" />
+                Edit
+              </button>
+            </div>
+            <div className="h-px bg-border" />
+            <div className="py-1">
+              <button
+                type="button"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-destructive/10 text-destructive"
+                onClick={() => setActionMenuId(null)}
+              >
+                <Archive className="h-4 w-4" />
+                Archive
+              </button>
+            </div>
+          </div>,
+          document.body
+        );
+      })()}
     </div>
   );
 }
