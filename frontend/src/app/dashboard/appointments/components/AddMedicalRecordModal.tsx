@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { ToothChart, type ToothStatus } from './ToothChart';
+import { ToothChart, TOOTH_CHART_STATUS_COLORS, type ToothStatus } from './ToothChart';
 import type { Appointment } from '../lib/types';
 import { TREATMENT_OPTIONS } from '../lib/constants';
 import { formatDateDisplay, getTodayStr } from '../lib/utils';
@@ -189,8 +189,11 @@ function ToothDetailPopover({
   return (
     <div
       className={cn(
-        'absolute top-1/2 z-50 w-[260px] max-w-[calc(100vw-2rem)] sm:w-[280px] -translate-y-1/2 rounded-lg border border-border bg-popover text-popover-foreground shadow-lg p-2.5 sm:p-3',
-        popupSide === 'left' ? 'left-1 sm:left-2' : 'right-1 sm:right-2'
+        // Mobile: render as a bottom sheet so actions never go off-screen.
+        'fixed inset-x-2 bottom-2 z-50 max-h-[70vh] overflow-y-auto rounded-lg border border-border bg-popover text-popover-foreground shadow-lg p-3',
+        // Desktop: render as a side popover inside the chart.
+        'sm:absolute sm:inset-x-auto sm:bottom-auto sm:top-1/2 sm:max-h-none sm:overflow-visible sm:w-[280px] sm:-translate-y-1/2 sm:p-3',
+        popupSide === 'left' ? 'sm:left-2' : 'sm:right-2'
       )}
       role="dialog"
       aria-labelledby="tooth-popup-title"
@@ -371,68 +374,68 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
       open={open}
       onOpenChange={onOpenChange}
       className={cn(
-        'w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] mx-auto',
-        showHistoryColumn ? 'max-w-4xl xl:max-w-5xl' : 'max-w-xl sm:max-w-2xl lg:max-w-3xl xl:max-w-3xl'
+        // Let the modal size to content, capped by viewport height.
+        'w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] mx-auto max-h-[85dvh] sm:max-h-[90vh] overflow-hidden',
+        showHistoryColumn
+          ? 'max-w-5xl 2xl:max-w-6xl'
+          : 'max-w-2xl sm:max-w-3xl lg:max-w-4xl xl:max-w-5xl'
       )}
     >
-      <DialogContent className={cn('w-full max-h-[85dvh] sm:max-h-[90vh] overflow-y-auto flex flex-col p-4 sm:p-6', showHistoryColumn && 'flex-row gap-0')}>
-        {showHistoryColumn && (
-          <aside className="hidden lg:flex w-[260px] xl:w-[320px] shrink-0 flex-col min-h-0 border-r border-border pr-4">
-            {toothPopupTooth !== null && TEETH_WITH_HISTORY[toothPopupTooth] && (MOCK_TOOTH_HISTORY[toothPopupTooth]?.length ?? 0) > 0 ? (
-              <ToothHistoryPanel
-                toothNumber={toothPopupTooth}
-                toothName={TOOTH_NAMES[toothPopupTooth] ?? `Tooth ${toothPopupTooth}`}
-                history={MOCK_TOOTH_HISTORY[toothPopupTooth] ?? []}
-              />
-            ) : (
-              <div className="rounded-lg border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-                <p className="font-medium text-foreground mb-1">Treatment history</p>
-                <p>Select a tooth with prior treatments on the chart to view its history here.</p>
-              </div>
-            )}
-          </aside>
+      <DialogContent
+        className={cn(
+          'w-full max-h-[85dvh] sm:max-h-[90vh] flex flex-col p-4 sm:p-6 min-h-0 overflow-hidden',
+          undefined
         )}
-        <div className={cn('flex flex-col min-w-0', showHistoryColumn && 'flex-1 lg:pl-4')}>
-        <div className="flex items-start justify-between gap-2 sm:gap-4">
-          <DialogHeader className="p-0 min-w-0">
-            <DialogTitle className="text-base sm:text-lg">Add Medical Record</DialogTitle>
-          </DialogHeader>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={() => onOpenChange(false)}
-            aria-label="Close"
-            className="h-8 w-8 shrink-0 -mr-1 -mt-1 sm:-mr-2"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+      >
+        <div className={cn('flex flex-col min-w-0 min-h-0', showHistoryColumn && 'flex-1 lg:pl-4')}>
+        {/* Header + step indicator: always visible */}
+        <div className="shrink-0">
+          <div className="flex items-start justify-between gap-2 sm:gap-4">
+            <DialogHeader className="p-0 min-w-0">
+              <DialogTitle className="text-base sm:text-lg">Add Medical Record</DialogTitle>
+            </DialogHeader>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+              aria-label="Close"
+              className="h-8 w-8 shrink-0 -mr-1 -mt-1 sm:-mr-2"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
 
-        {/* Step indicator - 3 columns, number above text */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-2 mt-2">
-          {STEPS.map((s) => (
-            <div key={s.id} className="flex flex-col items-center gap-1 sm:gap-1.5 text-center">
-              <div
-                className={cn(
-                  'flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium',
-                  step >= s.id ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                )}
-              >
-                {step > s.id ? '✓' : s.id}
+          {/* Step indicator - 3 columns, number above text */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-2 mt-2">
+            {STEPS.map((s) => (
+              <div key={s.id} className="flex flex-col items-center gap-1 sm:gap-1.5 text-center">
+                <div
+                  className={cn(
+                    'flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium',
+                    step >= s.id ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                  )}
+                >
+                  {step > s.id ? '✓' : s.id}
+                </div>
+                <span
+                  className={cn(
+                    'text-[10px] sm:text-sm',
+                    step >= s.id ? 'text-foreground font-medium' : 'text-muted-foreground'
+                  )}
+                >
+                  {s.label}
+                </span>
               </div>
-              <span
-                className={cn(
-                  'text-[10px] sm:text-sm',
-                  step >= s.id ? 'text-foreground font-medium' : 'text-muted-foreground'
-                )}
-              >
-                {s.label}
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
+        {/* Scrollable step content - only this area scrolls when needed */}
+        <div
+          className="flex-1 min-h-0 overflow-y-auto mt-3 sm:mt-4 overscroll-contain"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
         {step === 1 && (
           <>
             <h3 className="text-sm sm:text-base font-semibold text-foreground mt-4 sm:mt-6">Treatments provided</h3>
@@ -498,88 +501,144 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
         )}
 
         {step === 2 && (
-          <div className="mt-4 sm:mt-6 flex flex-col min-h-0 flex-1">
-            <div className="flex items-start gap-2 sm:gap-3 rounded-lg border border-primary/20 bg-primary/5 px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-foreground mb-3 sm:mb-4">
-              <Info className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 text-primary mt-0.5" />
-              <p className="min-w-0">Patient medical data is based on previous visits. Review and update it as needed for today.</p>
-            </div>
-            <h3 className="text-sm sm:text-base font-semibold text-foreground text-center">Tooth involvement</h3>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 sm:mt-2 text-center">
-              Assign teeth to each treatment, if applicable.
-            </p>
-            {treatments.length > 0 && (
-              <div className="mt-2 sm:mt-3 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
-                {treatments.map((t) => (
-                  <span
-                    key={t}
-                    className="inline-flex rounded-lg border border-border bg-muted/80 px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-foreground"
+          <div className="flex flex-col min-h-0 flex-1">
+            <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)_320px] gap-4 lg:gap-6">
+              {/* Left column: treatment history (desktop only) */}
+              {showHistoryColumn ? (
+                <div className="hidden lg:flex min-w-0 min-h-0">
+                  <div
+                    className="w-full min-w-0 min-h-0 overflow-y-auto overscroll-contain"
+                    style={{ WebkitOverflowScrolling: 'touch' }}
                   >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            )}
-            <div className="mt-3 sm:mt-4 w-full min-w-0 flex min-h-[260px] sm:min-h-[320px]">
-              {!HAS_TREATMENT_HISTORY && toothPopupTooth !== null && TEETH_WITH_HISTORY[toothPopupTooth] && (MOCK_TOOTH_HISTORY[toothPopupTooth]?.length ?? 0) > 0 && (
-                <div className="hidden sm:flex w-[260px] lg:w-[320px] shrink-0 flex-col min-h-0 mr-4">
-                  <ToothHistoryPanel
+                    {toothPopupTooth !== null && TEETH_WITH_HISTORY[toothPopupTooth] && (MOCK_TOOTH_HISTORY[toothPopupTooth]?.length ?? 0) > 0 ? (
+                      <ToothHistoryPanel
+                        toothNumber={toothPopupTooth}
+                        toothName={TOOTH_NAMES[toothPopupTooth] ?? `Tooth ${toothPopupTooth}`}
+                        history={MOCK_TOOTH_HISTORY[toothPopupTooth] ?? []}
+                      />
+                    ) : (
+                      <div className="rounded-lg border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
+                        <p className="font-medium text-foreground mb-1">Treatment history</p>
+                        <p>Select a tooth with prior treatments on the chart to view its history here.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="hidden lg:block" aria-hidden />
+              )}
+
+              {/* Middle column: chart only */}
+              <div className="min-w-0 flex justify-center">
+                <div
+                  className="min-w-0 overflow-hidden rounded-lg border border-border bg-card flex flex-col min-h-[220px] sm:min-h-[280px] relative w-full mx-auto max-w-[380px] sm:max-w-[440px] md:max-w-[480px] lg:max-w-[520px]"
+                  style={{ aspectRatio: '450/700' }}
+                >
+                  <ToothChart
+                    selectedTeeth={selectedTeeth}
+                    onSelectionChange={setSelectedTeeth}
+                    onToothClick={(num) => setToothPopupTooth(num)}
+                    toothStatus={{ 12: 'has_treatment', 20: 'pending' }}
+                    hideSelectedHint
+                    hideLegend
+                    className="flex-1 min-h-0 w-full"
+                  />
+                  {toothPopupTooth !== null && !TEETH_WITH_HISTORY[toothPopupTooth] && (
+                    <ToothDetailPopover
                     toothNumber={toothPopupTooth}
                     toothName={TOOTH_NAMES[toothPopupTooth] ?? `Tooth ${toothPopupTooth}`}
-                    history={MOCK_TOOTH_HISTORY[toothPopupTooth] ?? []}
-                  />
-                </div>
-              )}
-              <div className="flex-1 min-w-0 overflow-hidden rounded-lg border border-border bg-card flex flex-col min-h-[220px] sm:min-h-[280px] relative" style={{ aspectRatio: '450/700' }}>
-                <ToothChart
-                  selectedTeeth={selectedTeeth}
-                  onSelectionChange={setSelectedTeeth}
-                  onToothClick={(num) => setToothPopupTooth(num)}
-                  toothStatus={{ 12: 'has_treatment', 20: 'pending' }}
-                  className="flex-1 min-h-0 w-full"
-                />
-                {toothPopupTooth !== null && !TEETH_WITH_HISTORY[toothPopupTooth] && (
-                  <ToothDetailPopover
-                  toothNumber={toothPopupTooth}
-                  toothName={TOOTH_NAMES[toothPopupTooth] ?? `Tooth ${toothPopupTooth}`}
-                  condition={toothDetails[toothPopupTooth]?.condition ?? ''}
-                  treatment={toothDetails[toothPopupTooth]?.treatment ?? ''}
-                  notes={toothDetails[toothPopupTooth]?.notes ?? ''}
-                  treatmentStartedAt={toothDetails[toothPopupTooth]?.treatmentStartedAt}
-                  treatmentOptions={treatments.length > 0 ? treatments : [...TREATMENT_OPTIONS]}
-                  onConditionChange={(v) =>
-                    setToothDetails((prev) => ({
-                      ...prev,
-                      [toothPopupTooth]: { ...(prev[toothPopupTooth] ?? { condition: '', treatment: '', notes: '' }), condition: v },
-                    }))
-                  }
-                  onTreatmentChange={(v) =>
-                    setToothDetails((prev) => ({
-                      ...prev,
-                      [toothPopupTooth]: { ...(prev[toothPopupTooth] ?? { condition: '', treatment: '', notes: '' }), treatment: v },
-                    }))
-                  }
-                  onNotesChange={(v) =>
-                    setToothDetails((prev) => ({
-                      ...prev,
-                      [toothPopupTooth]: { ...(prev[toothPopupTooth] ?? { condition: '', treatment: '', notes: '' }), notes: v },
-                    }))
-                  }
-                  onCancel={() => setToothPopupTooth(null)}
-                  onSave={() => {
-                    const current = toothDetails[toothPopupTooth];
-                    const startedAt = current?.treatmentStartedAt ?? getTodayStr();
-                    setToothDetails((prev) => ({
-                      ...prev,
-                      [toothPopupTooth]: { ...(prev[toothPopupTooth] ?? { condition: '', treatment: '', notes: '' }), treatmentStartedAt: startedAt },
-                    }));
-                    if (!selectedTeeth.includes(toothPopupTooth)) {
-                      setSelectedTeeth((prev) => [...prev, toothPopupTooth].sort((a, b) => a - b));
+                    condition={toothDetails[toothPopupTooth]?.condition ?? ''}
+                    treatment={toothDetails[toothPopupTooth]?.treatment ?? ''}
+                    notes={toothDetails[toothPopupTooth]?.notes ?? ''}
+                    treatmentStartedAt={toothDetails[toothPopupTooth]?.treatmentStartedAt}
+                    treatmentOptions={treatments.length > 0 ? treatments : [...TREATMENT_OPTIONS]}
+                    onConditionChange={(v) =>
+                      setToothDetails((prev) => ({
+                        ...prev,
+                        [toothPopupTooth]: { ...(prev[toothPopupTooth] ?? { condition: '', treatment: '', notes: '' }), condition: v },
+                      }))
                     }
-                    setToothPopupTooth(null);
-                    toast.success('Tooth details saved.');
-                  }}
-                />
-              )}
+                    onTreatmentChange={(v) =>
+                      setToothDetails((prev) => ({
+                        ...prev,
+                        [toothPopupTooth]: { ...(prev[toothPopupTooth] ?? { condition: '', treatment: '', notes: '' }), treatment: v },
+                      }))
+                    }
+                    onNotesChange={(v) =>
+                      setToothDetails((prev) => ({
+                        ...prev,
+                        [toothPopupTooth]: { ...(prev[toothPopupTooth] ?? { condition: '', treatment: '', notes: '' }), notes: v },
+                      }))
+                    }
+                    onCancel={() => setToothPopupTooth(null)}
+                    onSave={() => {
+                      const current = toothDetails[toothPopupTooth];
+                      const startedAt = current?.treatmentStartedAt ?? getTodayStr();
+                      setToothDetails((prev) => ({
+                        ...prev,
+                        [toothPopupTooth]: { ...(prev[toothPopupTooth] ?? { condition: '', treatment: '', notes: '' }), treatmentStartedAt: startedAt },
+                      }));
+                      if (!selectedTeeth.includes(toothPopupTooth)) {
+                        setSelectedTeeth((prev) => [...prev, toothPopupTooth].sort((a, b) => a - b));
+                      }
+                      setToothPopupTooth(null);
+                      toast.success('Tooth details saved.');
+                    }}
+                  />
+                )}
+                </div>
+              </div>
+
+              {/* Right column: info + instructions */}
+              <div className="min-w-0 space-y-3 sm:space-y-4 text-center">
+                <div className="flex items-start gap-2 sm:gap-3 rounded-lg border border-primary/20 bg-primary/5 px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-foreground">
+                  <Info className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 text-primary mt-0.5" />
+                  <p className="min-w-0">Patient medical data is based on previous visits. Review and update it as needed for today.</p>
+                </div>
+
+                <div>
+                  <h3 className="text-sm sm:text-base font-semibold text-foreground">Tooth involvement</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 sm:mt-2">
+                    Assign teeth to each treatment, if applicable.
+                  </p>
+                </div>
+
+                {treatments.length > 0 && (
+                  <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+                    {treatments.map((t) => (
+                      <span
+                        key={t}
+                        className="inline-flex rounded-lg border border-border bg-muted/80 px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-foreground"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="hidden lg:block rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
+                  Tip: Click a tooth to add condition, treatment, and notes. Teeth with prior history show details on the left.
+                </div>
+
+                <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-foreground">
+                  <span className="inline-flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-sm shrink-0" style={{ backgroundColor: TOOTH_CHART_STATUS_COLORS.new.fill }} aria-hidden />
+                    New treatment
+                  </span>
+                  <span className="inline-flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-sm shrink-0" style={{ backgroundColor: TOOTH_CHART_STATUS_COLORS.has_treatment.fill }} aria-hidden />
+                    Has treatment before
+                  </span>
+                  <span className="inline-flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-sm shrink-0" style={{ backgroundColor: TOOTH_CHART_STATUS_COLORS.pending.fill }} aria-hidden />
+                    Pending treatment
+                  </span>
+                </div>
+
+                <p className="text-xs text-muted-foreground text-center mt-2 break-words">
+                  Universal numbering (1–32). Click a tooth to select involvement. Selected:{' '}
+                  {selectedTeeth.length > 0 ? selectedTeeth.join(', ') : 'None'}
+                </p>
               </div>
             </div>
           </div>
@@ -716,8 +775,10 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
             </div>
           </div>
         )}
+        </div>
 
-        <div className="mt-6 sm:mt-8 flex flex-col-reverse sm:flex-row justify-end gap-2">
+        {/* Footer: always visible at bottom on all screen sizes */}
+        <div className="shrink-0 pt-3 sm:pt-4 mt-3 sm:mt-4 border-t border-border flex flex-col-reverse sm:flex-row justify-end gap-2">
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
             Cancel
           </Button>

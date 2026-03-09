@@ -8,7 +8,7 @@ import { TOOTH_SPOTS } from '../lib/toothChartSpots';
 const VIEWBOX = '0 0 450 700';
 
 /** Status colors (from design): new, has treatment before, pending */
-const STATUS_COLORS = {
+export const TOOTH_CHART_STATUS_COLORS = {
   new: { fill: '#EC4899', stroke: '#DB2777' },
   has_treatment: { fill: '#9598FF', stroke: '#6366F1' },
   pending: { fill: '#FF956C', stroke: '#EA580C' },
@@ -39,6 +39,8 @@ type Props = {
   toothStatus?: Partial<Record<number, ToothStatus>>;
   /** When set, clicking a tooth calls this instead of toggling selection (view-only history mode). */
   onToothClick?: (toothNumber: number) => void;
+  /** Hide the legend row (use when rendering legend elsewhere). */
+  hideLegend?: boolean;
   /** Hide the "Selected: ..." hint below the legend (e.g. for view-only mode). */
   hideSelectedHint?: boolean;
   /** Show only "Has treatment before" and "Pending treatment" in the legend (for medical history view). */
@@ -51,6 +53,7 @@ export function ToothChart({
   onSelectionChange,
   toothStatus,
   onToothClick,
+  hideLegend,
   hideSelectedHint,
   legendOnlyHistory,
   className,
@@ -69,14 +72,14 @@ export function ToothChart({
   };
 
   return (
-    <div className={cn('w-full h-full min-w-0 min-h-0 flex flex-col tooth-chart', className)}>
+    <div className={cn('w-full h-full min-w-0 min-h-0 flex flex-col overflow-hidden tooth-chart', className)}>
       <div className="flex-1 min-h-0 w-full flex items-center justify-center">
         <svg
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
           viewBox={VIEWBOX}
           preserveAspectRatio="xMidYMid meet"
-          className="w-full h-full max-w-full max-h-full border border-border rounded-lg bg-card tooth-chart-svg block"
+          className="w-full h-full max-w-full max-h-full border border-border rounded-lg bg-card tooth-chart-svg block overflow-hidden"
         >
         {/* Tooth number labels (32 → 1) – grey default, dark when tooth has status */}
         <g id="toothLabels">
@@ -119,7 +122,7 @@ export function ToothChart({
             const num = parseInt(spot.key, 10);
             const selected = selectedTeeth.includes(num);
             const status = toothStatus?.[num] ?? (selected ? 'pending' : null);
-            const colors = status ? STATUS_COLORS[status] : null;
+            const colors = status ? TOOTH_CHART_STATUS_COLORS[status] : null;
             const fill = colors ? colors.fill : 'hsl(var(--muted))';
             const stroke = colors ? colors.stroke : TOOTH_BORDER_DEFAULT;
             const common = {
@@ -159,22 +162,24 @@ export function ToothChart({
         </svg>
       </div>
       {/* Legend */}
-      <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-3 flex-shrink-0 text-sm text-foreground">
-        {!legendOnlyHistory && (
+      {!hideLegend && (
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-3 flex-shrink-0 text-sm text-foreground">
+          {!legendOnlyHistory && (
+            <span className="inline-flex items-center gap-2">
+              <span className="w-4 h-4 rounded-sm shrink-0" style={{ backgroundColor: TOOTH_CHART_STATUS_COLORS.new.fill }} aria-hidden />
+              New treatment
+            </span>
+          )}
           <span className="inline-flex items-center gap-2">
-            <span className="w-4 h-4 rounded-sm shrink-0" style={{ backgroundColor: STATUS_COLORS.new.fill }} aria-hidden />
-            New treatment
+            <span className="w-4 h-4 rounded-sm shrink-0" style={{ backgroundColor: TOOTH_CHART_STATUS_COLORS.has_treatment.fill }} aria-hidden />
+            Has treatment before
           </span>
-        )}
-        <span className="inline-flex items-center gap-2">
-          <span className="w-4 h-4 rounded-sm shrink-0" style={{ backgroundColor: STATUS_COLORS.has_treatment.fill }} aria-hidden />
-          Has treatment before
-        </span>
-        <span className="inline-flex items-center gap-2">
-          <span className="w-4 h-4 rounded-sm shrink-0" style={{ backgroundColor: STATUS_COLORS.pending.fill }} aria-hidden />
-          Pending treatment
-        </span>
-      </div>
+          <span className="inline-flex items-center gap-2">
+            <span className="w-4 h-4 rounded-sm shrink-0" style={{ backgroundColor: TOOTH_CHART_STATUS_COLORS.pending.fill }} aria-hidden />
+            Pending treatment
+          </span>
+        </div>
+      )}
       {!hideSelectedHint && (
         <p className="text-xs text-muted-foreground text-center mt-2 break-words flex-shrink-0">
           Universal numbering (1–32). Click a tooth to select involvement. Selected:{' '}
