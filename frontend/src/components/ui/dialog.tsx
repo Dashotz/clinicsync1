@@ -14,6 +14,7 @@ interface DialogProps {
 
 export function Dialog({ open, onOpenChange, children, className, fullHeight }: DialogProps) {
   const backdropRef = React.useRef<HTMLDivElement>(null);
+  const contentRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (!open) return;
@@ -27,6 +28,32 @@ export function Dialog({ open, onOpenChange, children, className, fullHeight }: 
       document.body.style.overflow = '';
     };
   }, [open, onOpenChange]);
+
+  React.useEffect(() => {
+    if (!open || fullHeight) return;
+    const root = contentRef.current;
+    if (!root) return;
+    const onWheel = (e: WheelEvent) => {
+      // Find the scrollable element under the cursor (may be root or an inner div like DialogContent)
+      let scrollEl: HTMLElement | null = root;
+      let node: HTMLElement | null = e.target as HTMLElement;
+      while (node && node !== root) {
+        const style = getComputedStyle(node);
+        const overflowY = style.overflowY;
+        if ((overflowY === 'auto' || overflowY === 'scroll') && node.scrollHeight > node.clientHeight) {
+          scrollEl = node;
+          break;
+        }
+        node = node.parentElement;
+      }
+      if (scrollEl) {
+        scrollEl.scrollTop += e.deltaY;
+        e.preventDefault();
+      }
+    };
+    root.addEventListener('wheel', onWheel, { passive: false });
+    return () => root.removeEventListener('wheel', onWheel);
+  }, [open, fullHeight]);
 
   if (!open) return null;
 
@@ -46,12 +73,14 @@ export function Dialog({ open, onOpenChange, children, className, fullHeight }: 
         onClick={() => onOpenChange(false)}
       />
       <div
+        ref={contentRef}
         className={cn(
-          'relative z-50 overflow-y-auto',
+          'relative z-50 overflow-y-auto overflow-x-hidden',
           fullHeight ? 'h-full max-h-none pointer-events-none' : 'max-h-[90vh]',
           className
         )}
         onClick={fullHeight ? undefined : (e) => e.stopPropagation()}
+        style={fullHeight ? undefined : { overscrollBehavior: 'contain' }}
       >
         {children}
       </div>

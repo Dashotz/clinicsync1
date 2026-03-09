@@ -321,6 +321,7 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
   const [newTreatmentStatus, setNewTreatmentStatus] = useState<Record<string, 'done' | 'still_pending'>>({});
   /** Step 3: status per pending treatment (mock from previous visits) */
   const [pendingTreatmentStatus, setPendingTreatmentStatus] = useState<Record<string, 'done' | 'still_pending'>>({});
+  const [step1Error, setStep1Error] = useState<string | null>(null);
 
   // Reset and pre-fill when modal opens/closes
   useEffect(() => {
@@ -338,6 +339,7 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
       setToothDetails({});
       setNewTreatmentStatus({});
       setPendingTreatmentStatus({});
+      setStep1Error(null);
     }
   }, [open, appointment?.id]);
 
@@ -349,12 +351,22 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
     if (t && !treatments.includes(t)) {
       setTreatments((prev) => [...prev, t]);
       setAddTreatmentValue('');
+      setStep1Error(null);
     }
   };
 
   const availableToAdd = TREATMENT_OPTIONS.filter((t) => !treatments.includes(t));
 
   const handleContinue = () => {
+    if (step === 1) {
+      if (treatments.length === 0) {
+        setStep1Error('Add at least one treatment before continuing.');
+        return;
+      }
+      setStep1Error(null);
+      setStep(2);
+      return;
+    }
     if (step < 3) {
       setStep((s) => s + 1);
       return;
@@ -445,7 +457,12 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
 
             <div className="space-y-2 mt-3 sm:mt-4">
               <Label htmlFor="visit-treatment-select" className="text-xs sm:text-sm">Treatment</Label>
-              <div className="flex flex-wrap gap-2 min-h-[36px] rounded-md border border-input bg-transparent px-2.5 sm:px-3 py-2 text-xs sm:text-sm">
+              <div
+                className={cn(
+                  'flex flex-wrap gap-2 min-h-[36px] rounded-md border bg-transparent px-2.5 sm:px-3 py-2 text-xs sm:text-sm',
+                  step1Error ? 'border-destructive' : 'border-input'
+                )}
+              >
                 {treatments.map((t) => (
                   <span
                     key={t}
@@ -481,6 +498,7 @@ export function AddMedicalRecordModal({ open, onOpenChange, appointment, onSaveR
                   </SelectContent>
                 </Select>
               </div>
+              {step1Error && <p className="text-xs text-destructive">{step1Error}</p>}
               <p className="text-xs text-muted-foreground">
                 The scheduled treatment is pre-filled. You can add or remove treatments if needed.
               </p>

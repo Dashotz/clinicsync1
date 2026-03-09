@@ -23,6 +23,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CalendarPopover } from '@/components/ui/calendar-popover';
 import { cn } from '@/lib/utils';
+import { restrictToNumeric, restrictToLettersAndSpaces, restrictToPhone } from '@/lib/inputRestrictions';
 import { getTodayStr, formatDateDisplay } from '../lib/utils';
 import { DENTISTS, TREATMENT_OPTIONS, TIME_OPTIONS } from '../lib/constants';
 
@@ -95,11 +96,33 @@ export function NewAppointmentModal({
   const [step, setStep] = useState<1 | 2>(1);
   const [step1, setStep1] = useState<Step1Data>(defaultStep1);
   const [step2, setStep2] = useState<Step2Data>(defaultStep2);
+  const [errors, setErrors] = useState<{ step1?: Record<string, string>; step2?: Record<string, string> }>({});
 
   const resetForm = () => {
     setStep(1);
     setStep1({ ...defaultStep1, date: getTodayStr(), time: '9:00 AM' });
     setStep2(defaultStep2);
+    setErrors({});
+  };
+
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const validateStep1 = (): boolean => {
+    const e: Record<string, string> = {};
+    if (!step1.date?.trim()) e.date = 'Date is required';
+    if (!step1.time?.trim()) e.time = 'Time is required';
+    if (!step1.treatment?.trim()) e.treatment = 'Treatment is required';
+    setErrors((prev) => ({ ...prev, step1: Object.keys(e).length ? e : undefined }));
+    return Object.keys(e).length === 0;
+  };
+
+  const validateStep2 = (): boolean => {
+    const e: Record<string, string> = {};
+    if (!step2.patientName?.trim()) e.patientName = 'Patient name is required';
+    if (step2.email?.trim() && !EMAIL_REGEX.test(step2.email.trim())) e.email = 'Enter a valid email address';
+    if (step2.age?.trim() && (Number.isNaN(Number(step2.age)) || Number(step2.age) < 0 || Number(step2.age) > 150)) e.age = 'Enter a valid age (0–150)';
+    setErrors((prev) => ({ ...prev, step2: Object.keys(e).length ? e : undefined }));
+    return Object.keys(e).length === 0;
   };
 
   useEffect(() => {
@@ -126,9 +149,10 @@ export function NewAppointmentModal({
 
   const handleContinue = () => {
     if (step === 1) {
+      if (!validateStep1()) return;
       setStep(2);
     } else {
-      // Submit: pass form data to parent so they can add the appointment to the table
+      if (!validateStep2()) return;
       onSave?.({ step1, step2 });
       onSuccess?.();
       handleClose(false);
@@ -223,16 +247,17 @@ export function NewAppointmentModal({
                           {formatDateDisplay(step1.date) || 'Select date'}
                         </span>
                       }
-                      triggerClassName={cn('pl-9', inputShadowClass)}
+                      triggerClassName={cn('pl-9', inputShadowClass, errors.step1?.date && 'border-destructive')}
                     />
                   </div>
+                  {errors.step1?.date && <p className="text-xs text-destructive">{errors.step1.date}</p>}
                 </div>
                 <div className={fieldClass}>
                   <Label htmlFor="appointment-time" className="text-xs sm:text-sm">Appointment Time</Label>
                   <div className="relative">
                     <Clock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none z-10" />
                     <Select value={step1.time} onValueChange={(v) => setStep1((s) => ({ ...s, time: v }))}>
-                      <SelectTrigger id="appointment-time" className={cn('w-full pl-9', inputShadowClass)}>
+                      <SelectTrigger id="appointment-time" className={cn('w-full pl-9', inputShadowClass, errors.step1?.time && 'border-destructive')}>
                         <SelectValue placeholder="Select time" />
                       </SelectTrigger>
                       <SelectContent>
@@ -242,12 +267,13 @@ export function NewAppointmentModal({
                       </SelectContent>
                     </Select>
                   </div>
+                  {errors.step1?.time && <p className="text-xs text-destructive">{errors.step1.time}</p>}
                 </div>
               </div>
               <div className={fieldClass}>
                 <Label htmlFor="treatment">Treatment</Label>
                 <Select value={step1.treatment || undefined} onValueChange={(v) => setStep1((s) => ({ ...s, treatment: v }))}>
-                  <SelectTrigger id="treatment" className={cn('w-full', inputShadowClass)}>
+                  <SelectTrigger id="treatment" className={cn('w-full', inputShadowClass, errors.step1?.treatment && 'border-destructive')}>
                     <SelectValue placeholder="Select treatment" />
                   </SelectTrigger>
                   <SelectContent>
@@ -256,6 +282,7 @@ export function NewAppointmentModal({
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.step1?.treatment && <p className="text-xs text-destructive">{errors.step1.treatment}</p>}
               </div>
               <div className={fieldClass}>
                 <Label htmlFor="notes" className="text-xs sm:text-sm">Notes (Optional)</Label>
@@ -279,10 +306,11 @@ export function NewAppointmentModal({
                   id="patient-name"
                   type="text"
                   value={step2.patientName}
-                  onChange={(e) => setStep2((s) => ({ ...s, patientName: e.target.value }))}
+                  onChange={(e) => setStep2((s) => ({ ...s, patientName: restrictToLettersAndSpaces(e.target.value) }))}
                   placeholder="Enter or select patient"
-                  className={inputShadowClass}
+                  className={cn(inputShadowClass, errors.step2?.patientName && 'border-destructive')}
                 />
+                {errors.step2?.patientName && <p className="text-xs text-destructive">{errors.step2.patientName}</p>}
               </div>
               <div className={fieldClass}>
                 <Label htmlFor="age" className="text-xs sm:text-sm">Age</Label>
@@ -291,10 +319,11 @@ export function NewAppointmentModal({
                   type="text"
                   inputMode="numeric"
                   value={step2.age}
-                  onChange={(e) => setStep2((s) => ({ ...s, age: e.target.value }))}
+                  onChange={(e) => setStep2((s) => ({ ...s, age: restrictToNumeric(e.target.value) }))}
                   placeholder="Enter patient age"
-                  className={inputShadowClass}
+                  className={cn(inputShadowClass, errors.step2?.age && 'border-destructive')}
                 />
+                {errors.step2?.age && <p className="text-xs text-destructive">{errors.step2.age}</p>}
               </div>
               <div className={fieldClass}>
                 <Label className="text-xs sm:text-sm">Gender</Label>
@@ -321,16 +350,18 @@ export function NewAppointmentModal({
                   value={step2.email}
                   onChange={(e) => setStep2((s) => ({ ...s, email: e.target.value }))}
                   placeholder="example@gmail.com"
-                  className={inputShadowClass}
+                  className={cn(inputShadowClass, errors.step2?.email && 'border-destructive')}
                 />
+                {errors.step2?.email && <p className="text-xs text-destructive">{errors.step2.email}</p>}
               </div>
               <div className={fieldClass}>
                 <Label htmlFor="phone" className="text-xs sm:text-sm">Phone number</Label>
                 <Input
                   id="phone"
                   type="tel"
+                  inputMode="tel"
                   value={step2.phone}
-                  onChange={(e) => setStep2((s) => ({ ...s, phone: e.target.value }))}
+                  onChange={(e) => setStep2((s) => ({ ...s, phone: restrictToPhone(e.target.value) }))}
                   placeholder="Enter phone number"
                   className={inputShadowClass}
                 />

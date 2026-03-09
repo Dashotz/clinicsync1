@@ -52,6 +52,127 @@ function initialsFromName(name: string) {
     .join('');
 }
 
+/** Per-tooth condition record (for Add Record modal when tooth has history). */
+export type ToothConditionRecord = {
+  id: string;
+  dateRecorded: string;
+  condition: string;
+  surface: string;
+  severity: string;
+};
+
+/** Returns condition history for a specific tooth (used in Add Record modal). */
+export function getToothConditionsForTooth(patientId: string, toothNumber: number): ToothConditionRecord[] {
+  const row = PATIENT_ROWS.find((r) => r.id === patientId);
+  if (!row) return [];
+  const name = row.name.toLowerCase();
+  if (name === 'ivary lapina' && toothNumber === 29) {
+    return [
+      { id: 'tc-1', dateRecorded: '2026-03-02', condition: 'Caries', surface: 'D', severity: 'Moderate' },
+    ];
+  }
+  return [];
+}
+
+/** Charting/treatment history record for the Charting tab (odontogram + table). */
+export type ChartingRecord = {
+  id: string;
+  toothNumber: number;
+  treatment: string;
+  status: 'Done' | 'Completed' | 'Planned' | 'In Progress';
+  provider: string;
+  fee: number;
+  /** Optional; planned treatments may have no date yet */
+  date?: string;
+  /** When status is Done/Completed, show "Completed on {date}" on hover */
+  completedDate?: string;
+  /** Set when user links this treatment to a visit via Link to Visit modal */
+  linkedVisitId?: string;
+};
+
+/** Visit option for Link to Visit modal (scheduled or completed). */
+export type VisitOption = {
+  id: string;
+  date: string;
+  label: string;
+};
+
+/** Mock scheduled visits for a patient (would come from API). */
+export function getScheduledVisitsForPatient(patientId: string): VisitOption[] {
+  const row = PATIENT_ROWS.find((r) => r.id === patientId);
+  if (!row) return [];
+  return [
+    { id: 's1', date: '2026-02-24', label: 'Root canal treatment, +2' },
+  ];
+}
+
+/** Mock completed visits for a patient (would come from API). */
+export function getCompletedVisitsForPatient(patientId: string): VisitOption[] {
+  const row = PATIENT_ROWS.find((r) => r.id === patientId);
+  if (!row) return [];
+  return [
+    { id: 'c1', date: '2026-01-12', label: 'Pulp Capping' },
+    { id: 'c2', date: '2026-01-04', label: 'Consultation' },
+    { id: 'c3', date: '2025-12-21', label: 'Amalgam Filling' },
+  ];
+}
+
+/** Returns treatment history for a patient (used in Charting tab). Keyed by patient id for now. */
+export function getChartingRecordsByPatientId(patientId: string): ChartingRecord[] {
+  const row = PATIENT_ROWS.find((r) => r.id === patientId);
+  if (!row) return [];
+  const name = row.name.toLowerCase();
+
+  if (name === 'ivary lapina') {
+    return [
+      {
+        id: 'cr-ivary-1',
+        toothNumber: 29,
+        treatment: 'Root Canal Treatment',
+        status: 'Planned',
+        provider: 'Dr. Jeffrey Epstein',
+        fee: 6500,
+        date: undefined,
+      },
+    ];
+  }
+
+  if (name === 'francis cruz') {
+    return [
+      {
+        id: 'cr-f1',
+        toothNumber: 12,
+        treatment: 'Tooth filling',
+        status: 'Completed',
+        provider: 'Dr. Juan Cruz',
+        fee: 600,
+        date: '2026-01-26',
+        completedDate: '2026-01-26',
+      },
+      {
+        id: 'cr-f2',
+        toothNumber: 18,
+        treatment: 'Cleaning',
+        status: 'In Progress',
+        provider: 'Dr. Juan Cruz',
+        fee: 800,
+        date: '2026-01-06',
+      },
+      {
+        id: 'cr-f3',
+        toothNumber: 6,
+        treatment: 'Extraction',
+        status: 'Planned',
+        provider: 'Dr. Jeffrey Epstein',
+        fee: 1200,
+        date: undefined,
+      },
+    ];
+  }
+
+  return [];
+}
+
 export function getPatientDetailsById(patientId: string): PatientDetails | null {
   const row = PATIENT_ROWS.find((r) => r.id === patientId);
   if (!row) return null;

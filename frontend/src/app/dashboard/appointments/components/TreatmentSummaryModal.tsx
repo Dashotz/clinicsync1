@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { restrictToDecimal, restrictToLettersAndSpaces } from '@/lib/inputRestrictions';
 import type { Appointment } from '../lib/types';
 
 type DiscountEntry = {
@@ -197,13 +198,13 @@ export function TreatmentSummaryModal({
             <div className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-2">
               <div className="space-y-1">
                 <Label htmlFor="discount-title" className="text-xs font-medium">Discount Title</Label>
-                <Input
-                  id="discount-title"
-                  value={discount.title}
-                  onChange={(e) => setDiscount((d) => d ? { ...d, title: e.target.value } : null)}
-                  placeholder="e.g. New Customer"
-                  className="h-7 text-xs"
-                />
+                  <Input
+                    id="discount-title"
+                    value={discount.title}
+                    onChange={(e) => setDiscount((d) => d ? { ...d, title: restrictToLettersAndSpaces(e.target.value) } : null)}
+                    placeholder="e.g. New Customer"
+                    className="h-7 text-xs"
+                  />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div className="space-y-1">
@@ -225,11 +226,14 @@ export function TreatmentSummaryModal({
                   <Label htmlFor="discount-value" className="text-xs font-medium">Value</Label>
                   <Input
                     id="discount-value"
-                    type="number"
-                    min={0}
-                    step={discount.type === 'percent' ? 1 : 0.01}
-                    value={discount.value || ''}
-                    onChange={(e) => setDiscount((d) => d ? { ...d, value: Number(e.target.value) || 0 } : null)}
+                    type="text"
+                    inputMode="decimal"
+                    value={discount.value === 0 ? '' : String(discount.value)}
+                    onChange={(e) => {
+                      const raw = restrictToDecimal(e.target.value);
+                      const num = raw === '' ? 0 : parseFloat(raw);
+                      setDiscount((d) => d ? { ...d, value: Number.isNaN(num) ? 0 : num } : null);
+                    }}
                     placeholder={discount.type === 'percent' ? 'e.g. 10' : 'e.g. 1200'}
                     className="h-7 text-xs"
                   />
@@ -263,7 +267,7 @@ export function TreatmentSummaryModal({
                   <Input
                     id="fee-name"
                     value={fee.name}
-                    onChange={(e) => setFee((f) => f ? { ...f, name: e.target.value } : null)}
+                    onChange={(e) => setFee((f) => f ? { ...f, name: restrictToLettersAndSpaces(e.target.value) } : null)}
                     placeholder="e.g. Lab fee"
                     className="h-7 text-xs"
                   />
@@ -272,11 +276,14 @@ export function TreatmentSummaryModal({
                   <Label htmlFor="fee-price" className="text-xs font-medium">Price of the fee</Label>
                   <Input
                     id="fee-price"
-                    type="number"
-                    min={0}
-                    step={0.01}
-                    value={fee.price || ''}
-                    onChange={(e) => setFee((f) => f ? { ...f, price: Number(e.target.value) || 0 } : null)}
+                    type="text"
+                    inputMode="decimal"
+                    value={fee.price === 0 ? '' : String(fee.price)}
+                    onChange={(e) => {
+                      const raw = restrictToDecimal(e.target.value);
+                      const num = raw === '' ? 0 : parseFloat(raw);
+                      setFee((f) => f ? { ...f, price: Number.isNaN(num) ? 0 : num } : null);
+                    }}
                     placeholder="e.g. 500"
                     className="h-7 text-xs"
                   />

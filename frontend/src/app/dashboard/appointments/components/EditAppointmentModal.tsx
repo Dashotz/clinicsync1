@@ -49,6 +49,7 @@ export function EditAppointmentModal({
   const [time, setTime] = useState('9:00 AM');
   const [treatment, setTreatment] = useState('');
   const [notes, setNotes] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (open && appointment) {
@@ -57,11 +58,18 @@ export function EditAppointmentModal({
       setTime(time24ToDisplay(toTime24(appointment.start)));
       setTreatment(appointment.service || '');
       setNotes('');
+      setErrors({});
     }
   }, [open, appointment]);
 
   const handleSave = () => {
     if (!appointment) return;
+    const e: Record<string, string> = {};
+    if (!patientName?.trim()) e.patientName = 'Patient is required';
+    if (!date?.trim()) e.date = 'Date is required';
+    if (!time?.trim()) e.time = 'Time is required';
+    setErrors(e);
+    if (Object.keys(e).length > 0) return;
     const start24 = parseTimeTo24(time);
     const end24 = addOneHour(start24);
     onSave(appointment.id, {
@@ -104,8 +112,8 @@ export function EditAppointmentModal({
         <div className="mt-3 sm:mt-4 rounded-lg border border-border/60 bg-muted/30 px-3 sm:px-4 py-3 sm:py-4 space-y-3 sm:space-y-4">
           <div className={fieldClass}>
             <Label htmlFor="edit-patient" className="text-xs sm:text-sm">Patient</Label>
-            <Select value={patientName} onValueChange={setPatientName}>
-              <SelectTrigger id="edit-patient" className={cn('w-full', inputShadowClass)}>
+            <Select value={patientName} onValueChange={(v) => { setPatientName(v); setErrors((e) => ({ ...e, patientName: undefined })); }}>
+              <SelectTrigger id="edit-patient" className={cn('w-full', inputShadowClass, errors.patientName && 'border-destructive')}>
                 <SelectValue placeholder="Select patient" />
               </SelectTrigger>
               <SelectContent>
@@ -114,6 +122,7 @@ export function EditAppointmentModal({
                 ))}
               </SelectContent>
             </Select>
+            {errors.patientName && <p className="text-xs text-destructive">{errors.patientName}</p>}
           </div>
 
           <div className={fieldClass}>
@@ -140,22 +149,23 @@ export function EditAppointmentModal({
                 <CalendarPopover
                   id="edit-date"
                   value={date}
-                  onChange={setDate}
+                  onChange={(d) => { setDate(d); setErrors((e) => ({ ...e, date: undefined })); }}
                   trigger={
                     <span className="block flex-1 truncate text-left">
                       {date ? formatDateDisplay(date) : 'Select date'}
                     </span>
                   }
-                  triggerClassName={cn('pl-9', inputShadowClass)}
+                  triggerClassName={cn('pl-9', inputShadowClass, errors.date && 'border-destructive')}
                 />
               </div>
+              {errors.date && <p className="text-xs text-destructive">{errors.date}</p>}
             </div>
             <div className={fieldClass}>
               <Label htmlFor="edit-time" className="text-xs sm:text-sm">Appointment Time</Label>
               <div className="relative">
                 <Clock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none z-10" />
-                <Select value={time} onValueChange={setTime}>
-                  <SelectTrigger id="edit-time" className={cn('w-full pl-9', inputShadowClass)}>
+                <Select value={time} onValueChange={(v) => { setTime(v); setErrors((e) => ({ ...e, time: undefined })); }}>
+                  <SelectTrigger id="edit-time" className={cn('w-full pl-9', inputShadowClass, errors.time && 'border-destructive')}>
                     <SelectValue placeholder="Select time" />
                   </SelectTrigger>
                   <SelectContent>
@@ -165,6 +175,7 @@ export function EditAppointmentModal({
                   </SelectContent>
                 </Select>
               </div>
+              {errors.time && <p className="text-xs text-destructive">{errors.time}</p>}
             </div>
           </div>
 
