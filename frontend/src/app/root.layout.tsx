@@ -4,6 +4,7 @@ import '@/app/globals.css';
 import { Providers } from '@/components/providers';
 import { Toaster } from '@/components/ui/sonner';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Analytics } from '@vercel/analytics/next';
 
 const geistSans = Geist({ subsets: ['latin'] });
 const geistMono = Geist_Mono({
@@ -36,6 +37,7 @@ export default function RootLayout({
         <Providers>{children}</Providers>
         <Toaster />
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
