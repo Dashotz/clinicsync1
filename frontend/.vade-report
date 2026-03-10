@@ -1,0 +1,47 @@
+# Vercel Speed Insights Implementation
+
+## Summary
+Successfully installed and configured Vercel Speed Insights for the Next.js application.
+
+## Changes Made
+
+### 1. Package Installation
+- Installed `@vercel/speed-insights` version 1.3.1
+- Updated `package.json` to include the new dependency
+- Updated `package-lock.json` with the new package and its dependencies
+
+### 2. Configuration
+Modified `src/app/root.layout.tsx`:
+- Added import statement: `import { SpeedInsights } from '@vercel/speed-insights/next';`
+- Added `<SpeedInsights />` component inside the `<body>` tag, after `<Toaster />`
+
+## Implementation Details
+
+Since the project uses:
+- **Next.js version**: 15.0.3 (which is 13.5+)
+- **Router type**: App Router (app directory)
+- **Package manager**: npm
+
+The implementation follows the recommended approach for Next.js 13.5+ with App Router:
+- Imported `SpeedInsights` from `@vercel/speed-insights/next`
+- Added the component to the root layout (`app/root.layout.tsx`)
+- Placed it inside the `<body>` tag after the children and other components
+
+## Testing
+
+â **Build Test**: Successfully ran `npm run build` - the production build completes without errors
+â **Type Safety**: TypeScript compilation passed without any type errors
+â **No Breaking Changes**: All existing functionality remains intact
+
+## Files Modified
+
+1. `frontend/package.json` - Added @vercel/speed-insights dependency
+2. `frontend/package-lock.json` - Updated with new package dependencies
+3. `frontend/src/app/root.layout.tsx` - Added SpeedInsights component
+
+## Notes
+
+- The SpeedInsights component will automatically track page navigation and performance metrics
+- It will only collect data when deployed to Vercel (no data is collected in development mode)
+- The component is lightweight and won't impact the user experience
+- The existing code structure has been preserved, with minimal changes made only where necessary

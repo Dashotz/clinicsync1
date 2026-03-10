@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import '@/app/globals.css';
 import { Providers } from '@/components/providers';
 import { Toaster } from '@/components/ui/sonner';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const geistSans = Geist({ subsets: ['latin'] });
 const geistMono = Geist_Mono({
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body className={`${geistSans.className} ${geistMono.variable}`}>
         <Providers>{children}</Providers>
         <Toaster />
+        <SpeedInsights />
       </body>
     </html>
   );
