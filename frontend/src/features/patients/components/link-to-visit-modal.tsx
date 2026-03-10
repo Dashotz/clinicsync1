@@ -18,9 +18,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import type { VisitOption } from '../patientData';
-import { formatDateDisplay } from '@/app/dashboard/appointments/lib/utils';
-import { getToothDisplayName } from './toothNames';
+import type { VisitOption } from '@/features/patients/data/patient-data';
+import { formatDateDisplay } from '@/features/appointments/lib/utils';
+import { getToothDisplayName } from '@/features/patients/utils/tooth-names';
 import { cn } from '@/lib/utils';
 
 export type LinkToVisitTreatment = {

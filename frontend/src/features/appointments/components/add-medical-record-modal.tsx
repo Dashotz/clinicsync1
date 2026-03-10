@@ -20,10 +20,10 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { ToothChart, TOOTH_CHART_STATUS_COLORS, type ToothStatus } from './ToothChart';
-import type { Appointment } from '../lib/types';
-import { TREATMENT_OPTIONS } from '../lib/constants';
-import { formatDateDisplay, getTodayStr } from '../lib/utils';
+import { ToothChart, TOOTH_CHART_STATUS_COLORS, type ToothStatus } from '@/features/appointments/components/tooth-chart';
+import type { Appointment } from '@/features/appointments/lib/types';
+import { TREATMENT_OPTIONS } from '@/features/appointments/lib/constants';
+import { formatDateDisplay, getTodayStr } from '@/features/appointments/lib/utils';
 
 const STEPS = [
   { id: 1, label: 'Treatments provided' },

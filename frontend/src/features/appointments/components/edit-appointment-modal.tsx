@@ -22,9 +22,9 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { CalendarPopover } from '@/components/ui/calendar-popover';
 import { cn } from '@/lib/utils';
-import { formatDateDisplay, time24ToDisplay, toTime24, parseTimeTo24, addOneHour } from '../lib/utils';
-import type { Appointment } from '../lib/types';
-import { DENTISTS, TREATMENT_OPTIONS, TIME_OPTIONS } from '../lib/constants';
+import { formatDateDisplay, time24ToDisplay, toTime24, parseTimeTo24, addOneHour } from '@/features/appointments/lib/utils';
+import type { Appointment } from '@/features/appointments/lib/types';
+import { DENTISTS, TREATMENT_OPTIONS, TIME_OPTIONS } from '@/features/appointments/lib/constants';
 
 export type EditAppointmentModalProps = {
   open: boolean;

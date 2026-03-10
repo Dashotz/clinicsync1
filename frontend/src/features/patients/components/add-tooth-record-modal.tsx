@@ -25,10 +25,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { restrictToDecimal } from '@/lib/inputRestrictions';
-import { formatDateDisplay } from '@/app/dashboard/appointments/lib/utils';
-import type { ChartingRecord } from '../patientData';
-import type { ToothConditionRecord } from '../patientData';
-import { getToothDisplayName } from './toothNames';
+import { formatDateDisplay } from '@/features/appointments/lib/utils';
+import type { ChartingRecord } from '@/features/patients/data/patient-data';
+import type { ToothConditionRecord } from '@/features/patients/data/patient-data';
+import { getToothDisplayName } from '@/features/patients/utils/tooth-names';
 
 const TOOTH_STATUS_OPTIONS = ['Permanent', 'Missing', 'Unerupted', 'Deciduous'] as const;
 const CONDITION_OPTIONS = ['Caries', 'Fracture', 'Discoloration', 'Abscess', 'Other'];

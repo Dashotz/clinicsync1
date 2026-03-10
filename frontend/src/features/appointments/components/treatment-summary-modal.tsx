@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { restrictToDecimal, restrictToLettersAndSpaces } from '@/lib/inputRestrictions';
-import type { Appointment } from '../lib/types';
+import type { Appointment } from '@/features/appointments/lib/types';
 
 type DiscountEntry = {
   title: string;
