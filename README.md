@@ -13,8 +13,10 @@ Frontend application built with Next.js 15 (App Router). The site includes a mar
 | **Landing** (`/`) | Hero, core capabilities, product showcase, benefits, pricing, comparison, testimonials, demo request |
 | **Login** (`/login`) | Demo login with carousel and light/dark theme; valid credentials redirect to `/dashboard` |
 | **Dashboard** (`/dashboard`) | Analytics: cashflow chart, patients (donut), popular treatments (bar). Date/period filters. |
-| **Appointments** (`/dashboard/appointments`) | Calendar view (day grid, dentists, current-time line) and Appointment log table. Dentist/status filters. |
-| **New appointment** (`/dashboard/appointments/new`) | Placeholder for creating appointments |
+| **Appointments** (`/dashboard/appointments`) | Calendar + appointment log. Dentist/status filters; details/edit modals. |
+| **Patients** (`/dashboard/patients`) | Patient list |
+| **Patient details** (`/dashboard/patients/[patientId]`) | Charting (odontogram + history), add tooth record/treatment, link-to-visit |
+| **Insights** (`/dashboard/insights`) | Placeholder |
 
 ### Tech stack
 
@@ -42,17 +44,42 @@ Frontend application built with Next.js 15 (App Router). The site includes a mar
 clinicsync1/
   frontend/                    # Next.js frontend
     src/
-      app/                     # App Router
-        layout.tsx             # Root layout
-        page.tsx               # Landing
+      app/                                 # App Router routes
+        root.layout.tsx                    # Root layout implementation
+        layout.tsx                         # Re-export for Next.js
+        landing.page.tsx                   # Landing implementation
+        page.tsx                           # Re-export for Next.js
         globals.css
-        login/page.tsx
+        login/
+          login.page.tsx
+          page.tsx                         # Re-export for Next.js
         dashboard/
-          layout.tsx           # Sidebar + main
-          page.tsx             # Dashboard analytics
+          dashboard.layout.tsx
+          layout.tsx                       # Re-export for Next.js
+          dashboard.page.tsx
+          page.tsx                         # Re-export for Next.js
           appointments/
-            page.tsx           # Calendar & log
-            new/page.tsx
+            appointments.page.tsx
+            page.tsx                       # Re-export for Next.js
+          patients/
+            patients.page.tsx
+            page.tsx                       # Re-export for Next.js
+            [patientId]/
+              patient-detail.page.tsx
+              page.tsx                     # Re-export for Next.js
+          insights/
+            insights.page.tsx
+            page.tsx                       # Re-export for Next.js
+      features/                 # Feature modules (scalable by domain)
+        appointments/
+          components/
+          lib/
+          index.ts
+        patients/
+          components/
+          data/
+          utils/
+          index.ts
       components/              # Shared components
         ui/                    # Button, ButtonGroup, Card, Sonner
         dashboard/             # DashboardSidebar
@@ -60,7 +87,6 @@ clinicsync1/
       views/login/             # Login form and layout
       data/                    # Mock data
       lib/                     # utils, imageOptimizer
-      styles/
     next.config.js
     tailwind.config.ts
   memory/                      # PRD and product docs
@@ -109,6 +135,8 @@ Output is in `.next`. Run the production server with `npm run start`.
 cd frontend
 npm run lint
 ```
+
+Note: `next lint` is interactive in Next 15 if not migrated. For CI checks, prefer `npm run build`.
 
 ## Configuration
 
