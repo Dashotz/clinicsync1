@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'ClinicSync | Dental Practice Management',
+  title: 'ClinicSync',
   description: 'Dental Practice Management',
   icons: {
     icon: [
