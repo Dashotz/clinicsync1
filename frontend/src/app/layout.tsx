@@ -11,7 +11,6 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'ClinicSync | Dental Practice Management',
   description: 'Dental Practice Management',
   icons: {
     icon: [
@@ -31,6 +30,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <title>ClinicSync | Dental Practice Management</title>
+      </head>
       <body className={`${geistSans.className} ${geistMono.variable}`}>
         <Providers>{children}</Providers>
         <Toaster />
