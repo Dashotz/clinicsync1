@@ -56,16 +56,11 @@ const Hero = () => {
 
                         <div className="flex flex-col sm:flex-row gap-4">
                             <Button
-                                asChild
                                 size="lg"
                                 className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                             >
-                                <a
-                                    href="#"
-                                >
-                                    Start Free Trial
-                                    <ArrowRight className="ml-2 h-5 w-5" />
-                                </a>
+                                Start Free Trial
+                                <ArrowRight className="ml-2 h-5 w-5" />
                             </Button>
                             <Button
                                 size="lg"
