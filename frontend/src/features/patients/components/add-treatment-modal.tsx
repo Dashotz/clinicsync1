@@ -22,7 +22,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { restrictToDecimal } from '@/lib/inputRestrictions';
-import { getToothDisplayName, TOOTH_NUMBER_TO_NAME } from './toothNames';
+import { getToothDisplayName, TOOTH_NUMBER_TO_NAME } from '@/features/patients/utils/tooth-names';
 
 const TOOTH_NUMBERS = Object.keys(TOOTH_NUMBER_TO_NAME)
   .map(Number)

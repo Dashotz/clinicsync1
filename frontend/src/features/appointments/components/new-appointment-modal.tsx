@@ -24,8 +24,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CalendarPopover } from '@/components/ui/calendar-popover';
 import { cn } from '@/lib/utils';
 import { restrictToNumeric, restrictToLettersAndSpaces, restrictToPhone } from '@/lib/inputRestrictions';
-import { getTodayStr, formatDateDisplay } from '../lib/utils';
-import { DENTISTS, TREATMENT_OPTIONS, TIME_OPTIONS } from '../lib/constants';
+import { getTodayStr, formatDateDisplay } from '@/features/appointments/lib/utils';
+import { DENTISTS, TREATMENT_OPTIONS, TIME_OPTIONS } from '@/features/appointments/lib/constants';
 
 export type Step1Data = {
   dentistId: string;

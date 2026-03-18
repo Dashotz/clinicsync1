@@ -200,4 +200,3 @@ export function getPatientDetailsById(patientId: string): PatientDetails | null 
     ],
   };
 }
-

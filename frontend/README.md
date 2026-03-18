@@ -20,7 +20,11 @@ Next.js 15 application (App Router) for the ClinicSync landing page and dashboar
 | `npm run dev` | Start dev server at [http://localhost:3000](http://localhost:3000) |
 | `npm run build` | Production build (output in `.next`) |
 | `npm run start` | Run production server (after `build`) |
-| `npm run lint` | Run ESLint |
+| `npm run lint` | Runs `next lint` (interactive in Next 15 if not migrated) |
+
+Notes:
+- For CI / Vercel deployments, **`npm run build`** is the reliable check because it runs TypeScript validation.
+- If you want non-interactive linting, migrate `next lint` to ESLint CLI via `npx @next/codemod@canary next-lint-to-eslint-cli .`.
 
 ## Routes
 
@@ -28,11 +32,14 @@ Next.js 15 application (App Router) for the ClinicSync landing page and dashboar
 - `/login` — Login (redirects to `/dashboard` on success)
 - `/dashboard` — Dashboard (analytics)
 - `/dashboard/appointments` — Calendar & appointment log
-- `/dashboard/appointments/new` — New appointment (placeholder)
+- `/dashboard/patients` — Patient list
+- `/dashboard/patients/[patientId]` — Patient details (charting, history, modals)
+- `/dashboard/insights` — Insights (placeholder)
 
 ## Source layout
 
-- `src/app/` — App Router pages and layouts
+- `src/app/` — App Router routes (thin `page.tsx`/`layout.tsx` re-export from `*.page.tsx` / `*.layout.tsx`)
+- `src/features/` — Feature modules (appointments, patients)
 - `src/components/` — Reusable components (`ui/`, `dashboard/`)
 - `src/views/login/` — Login form and layout
 - `src/lib/` — Utilities

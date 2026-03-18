@@ -5,12 +5,12 @@ import { X, Stethoscope, Clock, MoreHorizontal, ClipboardList, Info, Trash2, Pen
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import type { Appointment, AppointmentStatus } from '../lib/types';
-import { formatDateDisplay, formatTimeRangeLong } from '../lib/utils';
-import { STATUS_CONFIG } from '../lib/constants';
-import { AddMedicalRecordModal } from './AddMedicalRecordModal';
-import { TreatmentSummaryModal } from './TreatmentSummaryModal';
-import { ToothChart, type ToothStatus } from './ToothChart';
+import type { Appointment, AppointmentStatus } from '@/features/appointments/lib/types';
+import { formatDateDisplay, formatTimeRangeLong } from '@/features/appointments/lib/utils';
+import { STATUS_CONFIG } from '@/features/appointments/lib/constants';
+import { AddMedicalRecordModal } from '@/features/appointments/components/add-medical-record-modal';
+import { TreatmentSummaryModal } from '@/features/appointments/components/treatment-summary-modal';
+import { ToothChart, type ToothStatus } from '@/features/appointments/components/tooth-chart';
 
 /** Mock per-patient tooth status from previous visits (has_treatment) and current/pending (pending). */
 const MOCK_PATIENT_TOOTH_HISTORY: Record<string, Partial<Record<number, ToothStatus>>> = {

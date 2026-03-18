@@ -23,18 +23,18 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import type { PatientDetails, ChartingRecord, ToothConditionRecord } from '../patientData';
+import type { PatientDetails, ChartingRecord, ToothConditionRecord } from '@/features/patients/data/patient-data';
 import {
   getChartingRecordsByPatientId,
   getToothConditionsForTooth,
   getScheduledVisitsForPatient,
   getCompletedVisitsForPatient,
-} from '../patientData';
-import { ToothChart, type ToothStatus } from '@/app/dashboard/appointments/components/ToothChart';
-import { formatDateDisplay } from '@/app/dashboard/appointments/lib/utils';
-import { AddToothRecordModal } from './AddToothRecordModal';
-import { AddTreatmentModal } from './AddTreatmentModal';
-import { LinkToVisitModal, type LinkToVisitTreatment } from './LinkToVisitModal';
+} from '@/features/patients/data/patient-data';
+import { ToothChart, type ToothStatus } from '@/features/appointments/components/tooth-chart';
+import { formatDateDisplay } from '@/features/appointments/lib/utils';
+import { AddToothRecordModal } from '@/features/patients/components/add-tooth-record-modal';
+import { AddTreatmentModal } from '@/features/patients/components/add-treatment-modal';
+import { LinkToVisitModal, type LinkToVisitTreatment } from '@/features/patients/components/link-to-visit-modal';
 
 const TABS = ['Overview', 'Charting', 'Appointment', 'Billing', 'Documents', 'Patient Info', 'Internal Notes'] as const;
 type Tab = (typeof TABS)[number];

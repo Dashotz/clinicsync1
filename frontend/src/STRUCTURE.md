@@ -1,75 +1,112 @@
 # Frontend Source Structure
 
-Next.js 15 App Router application. Entry is `app/layout.tsx` and route segments under `app/`.
+Next.js 15 App Router with **feature-based** organization. Routes live under `app/`; feature logic, components, and data live under `features/`.
+
+## Feature-based layout
+
+Routes use **segment.page.tsx** / **segment.layout.tsx** naming so you can see which route a file belongs to. Each route folder keeps a thin **page.tsx** or **layout.tsx** that re-exports from the named file (Next.js requires those exact filenames).
 
 ```
 src/
-├── app/                        # Next.js App Router
-│   ├── layout.tsx              # Root layout (metadata, Providers)
-│   ├── page.tsx                # Landing page (/)
-│   ├── globals.css             # Global styles, Tailwind
+├── app/                                  # Routes (thin page/layout re-export from *.page / *.layout)
+│   ├── root.layout.tsx                   # Root layout (metadata, html/body)
+│   ├── layout.tsx                        # → re-exports root.layout
+│   ├── landing.page.tsx                  # Landing page (/)
+│   ├── page.tsx                          # → re-exports landing.page
+│   ├── globals.css
 │   ├── login/
-│   │   └── page.tsx            # Login page (/login)
+│   │   ├── login.page.tsx
+│   │   └── page.tsx                      # → re-exports login.page
 │   └── dashboard/
-│       ├── layout.tsx         # Dashboard layout (sidebar + main)
-│       ├── page.tsx           # Dashboard home (/dashboard) — charts, cashflow, patients, treatments
+│       ├── dashboard.layout.tsx         # Sidebar + main wrapper
+│       ├── layout.tsx                    # → re-exports dashboard.layout
+│       ├── dashboard.page.tsx            # Dashboard home (charts)
+│       ├── page.tsx                      # → re-exports dashboard.page
+│       ├── insights/
+│       │   ├── insights.page.tsx
+│       │   └── page.tsx                  # → re-exports insights.page
+│       ├── patients/
+│       │   ├── patients.page.tsx         # Patient list
+│       │   ├── page.tsx                  # → re-exports patients.page
+│       │   └── [patientId]/
+│       │       ├── patient-detail.page.tsx
+│       │       └── page.tsx              # → re-exports patient-detail.page
 │       └── appointments/
-│           ├── page.tsx       # Appointments calendar & log (/dashboard/appointments)
-│           └── new/
-│               └── page.tsx   # New appointment placeholder (/dashboard/appointments/new)
-├── components/
-│   ├── ui/                     # Reusable UI primitives (shadcn-style)
-│   │   ├── button.tsx
-│   │   ├── button-group.tsx
-│   │   ├── card.tsx
-│   │   └── sonner.tsx
+│           ├── appointments.page.tsx     # Calendar & log
+│           └── page.tsx                  # → re-exports appointments.page
+│
+├── features/
+│   ├── appointments/             # Appointments feature
+│   │   ├── lib/                  # Types, utils, constants, tooth chart data
+│   │   │   ├── types.ts
+│   │   │   ├── utils.ts
+│   │   │   ├── constants.ts
+│   │   │   ├── tooth-chart-spots.ts
+│   │   │   └── index.ts
+│   │   ├── components/           # Kebab-case by function
+│   │   │   ├── tooth-chart.tsx
+│   │   │   ├── new-appointment-modal.tsx
+│   │   │   ├── edit-appointment-modal.tsx
+│   │   │   ├── appointment-details-modal.tsx
+│   │   │   ├── treatment-summary-modal.tsx
+│   │   │   └── add-medical-record-modal.tsx
+│   │   └── index.ts
+│   │
+│   └── patients/                 # Patients feature
+│       ├── data/
+│       │   └── patient-data.ts   # Rows, details, charting, visits
+│       ├── utils/
+│       │   └── tooth-names.ts    # Tooth display names (1–32)
+│       ├── components/
+│       │   ├── patient-details-view.tsx
+│       │   ├── add-tooth-record-modal.tsx
+│       │   ├── add-treatment-modal.tsx
+│       │   └── link-to-visit-modal.tsx
+│       └── index.ts
+│
+├── components/                   # Shared UI
+│   ├── ui/                       # Primitives (button, dialog, select, …)
 │   ├── dashboard/
 │   │   └── DashboardSidebar.tsx
-│   ├── AnimatedSection.tsx
-│   ├── Benefits.tsx
-│   ├── Comparison.tsx
-│   ├── ConstellationBackground.tsx
-│   ├── DemoRequest.tsx
-│   ├── Features.tsx
-│   ├── Footer.tsx
-│   ├── Header.tsx
-│   ├── Hero.tsx
-│   ├── LenisProvider.tsx
-│   ├── mode-toggle.tsx
-│   ├── Pricing.tsx
-│   ├── ProductShowcase.tsx
+│   ├── Hero.tsx, Features.tsx, Pricing.tsx, …
 │   ├── providers.tsx
-│   ├── Testimonials.tsx
-│   ├── theme-provider.tsx
-│   └── ...
+│   └── theme-provider.tsx, mode-toggle.tsx, LenisProvider.tsx
+│
 ├── views/
-│   └── login/
-│       ├── LoginForm.tsx       # Login form (sanitization, validation)
-│       ├── LoginForm.css
-│       ├── LoginPage.tsx       # Login layout/carousel
-│       ├── LoginPage.css
-│       └── index.ts
-├── data/
-│   └── mockData.js             # Static/mock content for landing
-├── lib/
-│   ├── utils.ts                # cn() and helpers
-│   └── imageOptimizer.ts       # Image URL helpers
+│   └── login/                    # Login view (LoginPage, LoginForm)
+│
+├── lib/                          # App-wide utils
+│   ├── utils.ts
+│   ├── inputRestrictions.ts
+│   └── imageOptimizer.ts
+│
+└── data/
+    └── mockData.js               # Landing/marketing mock data
 ```
+
+## Naming
+
+- **Features:** `features/<feature>/` (e.g. `appointments`, `patients`).
+- **Files:** kebab-case by function (e.g. `patient-details-view.tsx`, `add-treatment-modal.tsx`, `tooth-chart-spots.ts`).
+- **Exports:** Use `index.ts` per feature to expose public API.
+
+## Import paths
+
+| Use | Path |
+|-----|------|
+| Appointments types/utils/components | `@/features/appointments` or `@/features/appointments/lib`, `@/features/appointments/components/*` |
+| Patients data/utils/components | `@/features/patients` or `@/features/patients/data/patient-data`, `@/features/patients/utils/tooth-names`, etc. |
+| Shared UI | `@/components/ui/*`, `@/components/dashboard/*` |
+| Global utils | `@/lib/*` |
 
 ## Route summary
 
 | Route | Description |
 |-------|-------------|
-| `/` | Landing (Hero, Features, Pricing, etc.) |
-| `/login` | Login (form + carousel); success → `/dashboard` |
-| `/dashboard` | Dashboard home (cashflow, patients, treatments charts) |
-| `/dashboard/appointments` | Calendar tab + Appointment log tab (filters, table) |
-| `/dashboard/appointments/new` | New appointment (placeholder) |
-
-## Import paths
-
-- `@/components/*` — React components
-- `@/components/ui/*` — UI primitives
-- `@/lib/*` — Utilities
-- `@/data/*` — Static/mock data
-- `@/views/*` — View-level modules (e.g. login)
+| `/` | Landing |
+| `/login` | Login |
+| `/dashboard` | Dashboard home |
+| `/dashboard/appointments` | Calendar + appointment log |
+| `/dashboard/patients` | Patient list |
+| `/dashboard/patients/[patientId]` | Patient details (charting, modals) |
+| `/dashboard/insights` | Insights (placeholder) |
